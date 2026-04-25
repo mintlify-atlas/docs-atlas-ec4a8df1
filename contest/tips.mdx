@@ -1,0 +1,206 @@
+---
+title: "Contest Tips, Tricks, and Debugging Strategies"
+description: "Practical OI contest tips: avoiding TLE, MLE, and WA; reading problem statements effectively; debugging strategies; and proven contest-day habits."
+---
+
+Competitive programming success depends as much on avoiding mistakes as on solving hard problems. A correct algorithm submitted with an integer overflow, a misread constraint, or slow I/O can silently become a WA or TLE — costing partial or full points in OI format where there is no second chance. The tips below are drawn from real OI practice and cover the full arc of a contest: reading the problem, coding, testing, and submitting.
+
+## Understanding Verdict Codes
+
+Before anything else, know exactly what each judge response means so you can diagnose failures quickly.
+
+<AccordionGroup>
+  <Accordion title="AC — Accept">
+    Your program produced the correct output for all test points on this subtask. In OI format, AC on a test point earns that point's score. In ICPC format, AC on all test points is required to count the problem as solved.
+  </Accordion>
+  <Accordion title="WA — Wrong Answer">
+    Your output is incorrect for at least one test point. The most common causes are: off-by-one errors, integer overflow, uninitialized variables, incorrect edge-case handling, and misreading the problem statement. Add assertion checks and test on your own corner cases first.
+  </Accordion>
+  <Accordion title="TLE — Time Limit Exceeded">
+    Your program ran longer than the time limit. Diagnose by estimating your algorithm's complexity against the input constraints. As a rule of thumb, modern OI judges execute roughly **10⁸ simple operations per second**. An O(n²) solution with n = 10⁶ will TLE; look for an O(n log n) or O(n) approach. Also check that you haven't accidentally used `endl` in a tight loop (it flushes the buffer on every call).
+  </Accordion>
+  <Accordion title="MLE — Memory Limit Exceeded">
+    Your program used more memory than allowed. Check for large static arrays, unnecessary copies of containers, or memory leaks. A common OI pitfall is declaring a 2D array like `int a[10001][10001]` (≈ 400 MB) on the stack, which overflows the stack before even reaching `main`.
+  </Accordion>
+  <Accordion title="RE — Runtime Error">
+    Your program crashed. Common causes: out-of-bounds array access, stack overflow from deep recursion, division by zero, or dereferencing a null/dangling pointer. Compile with `-fsanitize=address,undefined` locally to catch these.
+  </Accordion>
+  <Accordion title="CE — Compile Error">
+    Your code did not compile. This is a full zero in both OI and ICPC formats. Always compile locally before submitting. Common causes: missing semicolons, undefined variables, wrong include paths, or using C++17 features on a C++14 judge.
+  </Accordion>
+</AccordionGroup>
+
+## Reading Problem Statements
+
+<AccordionGroup>
+  <Accordion title="Extract constraints first">
+    Before reading the full problem narrative, scan to the bottom for the constraint table. The values of n, m, and other parameters determine which algorithmic complexity is feasible. A constraint of n ≤ 10⁵ typically calls for O(n log n); n ≤ 10³ may allow O(n²); n ≤ 20 might allow exponential or bitmask DP.
+  </Accordion>
+  <Accordion title="Identify the exact output format">
+    Many WAs come from output format errors. Does the problem want each answer on its own line, or space-separated? Does it want "YES"/"NO" or "Yes"/"No"? Is there a trailing newline requirement? Read the output specification and the examples carefully — the examples are the ground truth.
+  </Accordion>
+  <Accordion title="Check for multiple test cases">
+    Some problems wrap multiple test cases in a single run. Look for a variable `T` or `t` near the start of the input specification. If there are multiple test cases, make sure all global variables are reset between cases, or use local variables inside the loop.
+  </Accordion>
+  <Accordion title="Understand what counts as a valid answer">
+    Some problems have multiple valid outputs (e.g., "output any valid arrangement"). Others require lexicographically smallest, or maximum, or a specific canonical form. Confusing these leads to WA on non-obvious cases.
+  </Accordion>
+</AccordionGroup>
+
+## Coding Habits
+
+<AccordionGroup>
+  <Accordion title="Use a standard template">
+    Start every solution from a tested template. This eliminates a class of bugs (forgetting `ios::sync_with_stdio(false)`, wrong main signature, etc.) and lets you focus on the algorithm.
+
+    ```cpp
+    #include <bits/stdc++.h>
+    using namespace std;
+
+    int main()
+    {
+        ios::sync_with_stdio(false);
+        cin.tie(nullptr);
+
+        // solve
+
+        return 0;
+    }
+    ```
+  </Accordion>
+  <Accordion title="Prefer long long when in doubt">
+    Integer overflow is silent in C++. If intermediate values can exceed 2×10⁹, use `long long`. When multiplying two `int` values, cast at least one to `long long` before multiplying:
+
+    ```cpp
+    long long result = (long long)a * b;
+    ```
+
+    The range of `long long` is approximately ±9.2×10¹⁸, sufficient for most OI problems.
+  </Accordion>
+  <Accordion title="Initialize arrays carefully">
+    Global arrays in C++ are zero-initialized. Local arrays are not. Use `memset` or fill constructors when needed:
+
+    ```cpp
+    // Fill with 0
+    memset(dp, 0, sizeof(dp));
+
+    // Fill with a large sentinel value (commonly used for "infinity")
+    memset(dist, 0x3f, sizeof(dist));  // sets each byte to 0x3f; dist[i] ≈ 1e9
+    ```
+
+    Note: `0x3f3f3f3f` = 1,061,109,567 ≈ 10⁹, a common "infinity" value for `int` arrays.
+  </Accordion>
+  <Accordion title="Watch out for stack overflow in deep recursion">
+    The default stack size on most OI judges is 8 MB. A recursion depth of ~10⁵ for a function with several local variables can exceed this. For DFS on large graphs, consider converting to iterative with an explicit stack, or requesting a larger stack if the judge allows it.
+  </Accordion>
+</AccordionGroup>
+
+## Partial Credit (骗分) Strategies
+
+In OI format, partial credit is real. If you cannot solve a problem completely, it is worth coding a slower but correct solution for a subset of the test cases to earn partial points.
+
+<AccordionGroup>
+  <Accordion title="Brute force for small subtasks">
+    Most OI problems have subtasks with small n (e.g., n ≤ 20 or n ≤ 1000). A brute-force O(n³) or O(2ⁿ) solution will pass these subtasks and earn meaningful partial credit. Code the brute force first, verify it on the examples, then optimize.
+  </Accordion>
+  <Accordion title="打表 (Precomputation / Table lookup)">
+    For problems where the answer follows a pattern or has a small domain, compute answers offline and hardcode them as a lookup table. This technique (called 打表) is surprisingly effective for certain number theory or combinatorics problems.
+
+    The workflow: write a brute-force program to generate answers for all inputs up to the constraint, copy the output into a static array, and submit a program that just looks up the answer.
+  </Accordion>
+  <Accordion title="Special-case the examples">
+    As a last resort, you can hardcode the output for the given examples. This guarantees at least the example test points, which in some scoring schemes carry weight. This is only worthwhile if the examples are a significant fraction of the total test data.
+  </Accordion>
+</AccordionGroup>
+
+## Debugging Strategies
+
+<AccordionGroup>
+  <Accordion title="Test on the provided examples first">
+    Always run your program on every provided example before submitting. If your output differs from the expected output, debug before moving on. Copy the example input exactly — trailing spaces and newlines can matter.
+  </Accordion>
+  <Accordion title="Generate random stress tests">
+    Write a brute-force solution and a fast solution, then compare their outputs on randomly generated inputs. This is called stress testing and is one of the most effective debugging techniques in competitive programming.
+
+    ```cpp
+    // Stress test driver (pseudocode)
+    for (int iter = 0; iter < 10000; iter++) {
+        generate_random_input();
+        assert(brute_force_answer() == fast_answer());
+    }
+    ```
+  </Accordion>
+  <Accordion title="Add assertions and boundary prints">
+    During debugging, liberally add `assert()` calls to verify invariants (e.g., array indices in range, values non-negative). Print intermediate values to `stderr` so they don't pollute your stdout output:
+
+    ```cpp
+    cerr << "n = " << n << ", dp[0] = " << dp[0] << '\n';
+    ```
+
+    Remove or `#ifdef`-guard debug output before submitting.
+  </Accordion>
+  <Accordion title="Compile with sanitizers">
+    The AddressSanitizer and UndefinedBehaviorSanitizer catch a wide range of bugs at runtime:
+
+    ```bash
+    g++ -O0 -g -fsanitize=address,undefined -std=c++17 -o sol sol.cpp
+    ./sol < input.txt
+    ```
+
+    These will report out-of-bounds accesses, integer overflow (when signed), null dereferences, and more — often pinpointing the exact line.
+  </Accordion>
+</AccordionGroup>
+
+## I/O Optimization Tips
+
+<AccordionGroup>
+  <Accordion title="Always disable sync for cin/cout">
+    Add these two lines at the start of `main` whenever you use `cin` or `cout`. They bring `cin`/`cout` to near `scanf`/`printf` speed:
+
+    ```cpp
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    ```
+  </Accordion>
+  <Accordion title="Use '\n' not endl">
+    `endl` flushes the output buffer in addition to writing a newline. In a loop that outputs n lines, `endl` can add O(n) flush operations:
+
+    ```cpp
+    // Slow
+    cout << answer << endl;
+
+    // Fast
+    cout << answer << '\n';
+    ```
+  </Accordion>
+  <Accordion title="Use fast I/O for extreme cases">
+    For problems with 10⁷+ integers to read, even `cin` with sync disabled may be too slow. Use a `getchar`-based reader:
+
+    ```cpp
+    inline int read()
+    {
+        int x = 0, f = 1;
+        char c = getchar();
+        while (c < '0' || c > '9') { if (c == '-') f = -1; c = getchar(); }
+        while (c >= '0' && c <= '9') x = x * 10 + c - 48, c = getchar();
+        return x * f;
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Contest-Day Checklist
+
+Before submitting any solution in an OI contest:
+
+- Read the full problem statement, including all subtask constraints.
+- Confirm your algorithm's time and space complexity fits within the limits.
+- Test on all provided examples and verify the output format exactly.
+- Check for integer overflow — use `long long` where values can exceed 2×10⁹.
+- Make sure global arrays are correctly sized and initialized.
+- Remove or disable all debug output (`cerr`, `printf` to stderr, etc.).
+- Compile cleanly with no warnings (`-Wall -Wextra` locally).
+
+<Warning>
+In OI format, you have only **one submission** per problem. There is no penalty for wrong answers beyond lost points, but you cannot resubmit. Spend extra time testing before you commit to a final submission.
+</Warning>

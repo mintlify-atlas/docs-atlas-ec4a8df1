@@ -1,0 +1,58 @@
+---
+title: "Map Projects: Interactive Geographic Visualizations"
+description: Interactive map projects built with Mapbox and OpenStreetMap, including a detailed visualization of 55 Hangzhou high schools with 2025 enrollment zone data.
+---
+
+Geographic visualization projects that combine open data, satellite positioning, and interactive map rendering. These maps are built with real-world data sources and designed to be useful rather than decorative.
+
+<CardGroup cols={2}>
+  <Card title="Hangzhou Highschool Map" icon="school" href="#hangzhou-highschool-map">
+    An interactive map of 55 high schools in Hangzhou city, with 2025 enrollment data, built using Mapbox, OpenStreetMap, and Google Maps Platform location data.
+  </Card>
+</CardGroup>
+
+---
+
+## Hangzhou Highschool Map
+
+The Hangzhou Highschool Map is an interactive geographic visualization of high schools in Hangzhou, China. It is designed for students and families who want to understand the spatial distribution of secondary schools relative to their location.
+
+### Data Sources
+
+- **School locations** — Latitude and longitude data sourced from Google Maps Platform, with all coordinates manually reviewed for accuracy.
+- **Map basemap** — OpenStreetMap data rendered through Mapbox for interactive display.
+- **Enrollment data** — 2025 enrollment information from official Hangzhou Education Bureau documents:
+  - 2025 First-round high school admission results for Hangzhou urban districts (51 schools)
+  - 2025 Second-round high school admission results
+
+### Coverage
+
+The initial dataset covers the **51 high schools** listed in the 2025 first-round centralized admission list for Hangzhou urban districts. Four additional schools have since been added:
+
+- 学军文渊 (Xuejun Wenyuan Campus)
+- 天元钱路 (Tianyuan Qianlu Campus)
+- 天元和睦 (Tianyuan Hemu Campus)
+- 桐庐中学 (Tonglu High School)
+
+This brings the current total to **55 schools**.
+
+### Technical Implementation
+
+The map is rendered using **Mapbox GL JS** for smooth, interactive vector tile rendering. School location data is loaded as a GeoJSON feature collection and displayed as interactive point markers.
+
+Rendering effect screenshots were taken from the live web application and post-processed in **Photoshop** to adjust contrast, color balance, and composition for the project preview image.
+
+### Repository
+
+The source code is published at `lailai0916/hangzhou-highschool-map` on GitHub.
+
+### Contributing
+
+If a school is missing from the map or a coordinate is incorrect, you can:
+
+1. Open an issue on the GitHub repository with the school name and correct coordinates.
+2. Submit a pull request with the updated data in the GeoJSON source file.
+
+<Note>
+  The map uses live Mapbox tiles and requires a network connection. All school coordinates have been individually reviewed against satellite imagery for accuracy.
+</Note>

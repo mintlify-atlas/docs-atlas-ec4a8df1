@@ -1,0 +1,187 @@
+---
+title: "Segment Tree: Range Updates and Lazy Propagation in C++"
+description: "Master segment trees for OI: point updates, range queries, lazy propagation, and a C++ template covering common variants and typical contest applications."
+---
+
+A segment tree is a binary tree built over an array that lets you answer range queries and apply range updates in O(log n) time. Each node stores an aggregate (sum, min, max, GCD, etc.) of a contiguous subarray, and queries are answered by combining O(log n) nodes whose ranges collectively cover the query interval. Segment trees are the most broadly applicable range-query structure in competitive programming.
+
+## Core Concepts
+
+A segment tree over an array of size n has at most 4n nodes. The standard indexing convention uses 1-based node indices: node `u` has children `2u` (left, `ls`) and `2u+1` (right, `rs`). The tree is built bottom-up with `push_up`, and queries propagate lazy tags downward with `push_down` before recursing.
+
+```cpp
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define mid (l+r>>1)
+```
+
+<Tabs>
+  <TabItem value="Range Update / Range Query (Lazy)">
+
+When you need to add a value `v` to every element in `[x, y]`, pushing the update eagerly costs O(n). A **lazy tag** stores the deferred update on each node and is flushed to children only when the node is about to be split. This is the canonical OI template drawn directly from the source:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+
+const int N = 100005;
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define mid (l+r>>1)
+
+struct SEG {
+    ll a[N], val[N<<2], tag[N<<2];
+
+    // Apply a lazy increment v to node u covering a range of length len
+    void gx(int u, ll v, int len) { val[u] += v * len; tag[u] += v; }
+
+    void push_up(int u) { val[u] = val[ls] + val[rs]; }
+
+    void push_down(int u, int l, int r) {
+        gx(ls, tag[u], mid - l + 1);
+        gx(rs, tag[u], r - mid);
+        tag[u] = 0;
+    }
+
+    void build(int u, int l, int r) {
+        if (l == r) { val[u] = a[l]; return; }
+        build(ls, l, mid);
+        build(rs, mid+1, r);
+        push_up(u);
+    }
+
+    // Add v to all elements in [x, y]
+    void update(int u, int l, int r, int x, int y, ll v) {
+        if (x <= l && r <= y) { gx(u, v, r - l + 1); return; }
+        push_down(u, l, r);
+        if (x <= mid) update(ls, l, mid, x, y, v);
+        if (y >  mid) update(rs, mid+1, r, x, y, v);
+        push_up(u);
+    }
+
+    // Sum of elements in [x, y]
+    ll query(int u, int l, int r, int x, int y) {
+        if (x <= l && r <= y) return val[u];
+        push_down(u, l, r);
+        ll res = 0;
+        if (x <= mid) res += query(ls, l, mid, x, y);
+        if (y >  mid) res += query(rs, mid+1, r, x, y);
+        return res;
+    }
+} seg;
+```
+
+<Note>
+Always call `push_down` before recursing into children during both `update` and `query`. Forgetting this is the most common segment tree bug in contests.
+</Note>
+
+  </TabItem>
+  <TabItem value="Point Update / Range Query">
+
+When only individual elements are modified, omit lazy tags entirely. Each update touches exactly O(log n) nodes along one root-to-leaf path.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+using ll = long long;
+const int N = 100005;
+
+struct SEG {
+    ll val[N << 2];
+    void push_up(int u) { val[u] = val[u<<1] + val[u<<1|1]; }
+    void build(int u, int l, int r, ll a[]) {
+        if (l == r) { val[u] = a[l]; return; }
+        int mid = l + r >> 1;
+        build(u<<1, l, mid, a);
+        build(u<<1|1, mid+1, r, a);
+        push_up(u);
+    }
+    void update(int u, int l, int r, int x, ll v) {
+        if (l == r) { val[u] += v; return; }
+        int mid = l + r >> 1;
+        if (x <= mid) update(u<<1, l, mid, x, v);
+        else          update(u<<1|1, mid+1, r, x, v);
+        push_up(u);
+    }
+    ll query(int u, int l, int r, int x, int y) {
+        if (x <= l && r <= y) return val[u];
+        int mid = l + r >> 1;
+        ll res = 0;
+        if (x <= mid) res += query(u<<1, l, mid, x, y);
+        if (y >  mid) res += query(u<<1|1, mid+1, r, x, y);
+        return res;
+    }
+} seg;
+```
+
+  </TabItem>
+  <TabItem value="Range Assign Variant">
+
+When the operation is **assign** (set all elements in `[x, y]` to `v`) rather than add, the lazy tag needs a sentinel to distinguish "no pending tag" from "pending value = 0". Use `-1` or a separate boolean flag.
+
+```cpp
+// Assign variant: tag stores the value to assign; -1 means no pending tag
+struct SEGAssign {
+    ll val[N<<2];
+    int tag[N<<2];  // -1 = no tag
+
+    void push_up(int u) { val[u] = val[u<<1] + val[u<<1|1]; }
+
+    void apply(int u, int l, int r, int v) {
+        val[u] = (ll)v * (r - l + 1);
+        tag[u] = v;
+    }
+
+    void push_down(int u, int l, int r) {
+        if (tag[u] == -1) return;
+        int mid = l + r >> 1;
+        apply(u<<1, l, mid, tag[u]);
+        apply(u<<1|1, mid+1, r, tag[u]);
+        tag[u] = -1;
+    }
+    // update / query follow the same structural pattern
+};
+```
+
+  </TabItem>
+</Tabs>
+
+## Common Variants and Applications
+
+<CardGroup cols={2}>
+  <Card title="Range Min / Max" icon="arrow-down-up-across-line">
+    Replace `val[u] = val[ls] + val[rs]` with `min` or `max`. Classic for RMQ when offline Sparse Table is not applicable (e.g., with updates).
+  </Card>
+  <Card title="Segment Tree on Trees (HLD)" icon="tree">
+    Flatten a tree with Heavy-Light Decomposition (HLD), then apply a segment tree on the flattened array to answer path queries in O(log² n).
+  </Card>
+  <Card title="Merge Sort Tree" icon="layer-group">
+    Store sorted vectors in each node to answer range k-th or range count queries at O(log² n) time and O(n log n) space.
+  </Card>
+  <Card title="Segment Tree Beats" icon="bolt">
+    Supports range min/max assignment while tracking the second distinct value, enabling "chmin" and "chmax" operations that were previously intractable.
+  </Card>
+</CardGroup>
+
+## Complexity
+
+| Operation | Time | Space |
+|---|---|---|
+| Build | O(n) | O(n) |
+| Point update | O(log n) | — |
+| Range update (lazy) | O(log n) | — |
+| Range query | O(log n) | — |
+
+## Practice Problems
+
+- **P3372** — Segment tree template: range add, range sum query
+- **P3373** — Dual operations: range multiply + range add with lazy
+- **P4588** — Segment tree with range product modulo
+- **P1471** — Range sum, range sum of squares, range assign
+- **P4556** — Segment tree on a tree (HLD + lazy propagation)
+- **CF786B** — Segment tree with non-trivial merge function
+
+<Tip>
+For problems with two lazy operations (e.g., multiply then add), define the composition rule carefully. If the tag is (mul, add), composing a new (mul2, add2) onto it gives (mul × mul2, add × mul2 + add2).
+</Tip>

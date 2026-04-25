@@ -1,0 +1,81 @@
+---
+title: "Competitive Programming in China: OI Overview"
+description: "An introduction to OI in China — major competitions (NOI, APIO, IOI, CSP), contest formats, difficulty progression, and how to start competitive programming."
+---
+
+Competitive programming in China—known as OI (Olympiad in Informatics, 信息学奥林匹克竞赛)—is one of the five major high-school subject olympiads, alongside mathematics, physics, chemistry, and biology. Originating in China in 1984, OI challenges participants to apply algorithms, data structures, and mathematical reasoning to solve real-world computational problems by writing efficient programs. The discipline spans from entry-level school contests all the way to the prestigious International Olympiad in Informatics (IOI), forming a clear progression path for dedicated students.
+
+## Major Competitions
+
+The Chinese OI ecosystem consists of several distinct competitions that build on each other. Entry-level students start with CSP-J (Junior), advancing through CSP-S (Senior), NOIP, provincial selections, and ultimately NOI. Top NOI performers may represent China at APIO and IOI.
+
+<CardGroup cols={2}>
+  <Card title="CSP-J/S" icon="graduation-cap" href="https://www.noi.cn">
+    The Computing Proficiency Test, held annually in September (Round 1) and October (Round 2). CSP-J targets junior-level students; CSP-S targets senior-level. Both rounds use the OI format and serve as the entry point for the entire competition ladder.
+  </Card>
+  <Card title="NOIP" icon="trophy" href="https://www.noi.cn">
+    The National Olympiad in Informatics in Provinces, held each November. NOIP is a stepping stone between CSP-S and the national-level NOI, using the OI contest format across all provinces simultaneously.
+  </Card>
+  <Card title="NOI" icon="star" href="https://www.noi.cn">
+    The National Olympiad in Informatics — the pinnacle of high-school OI in China. Held every July, NOI selects the national team that competes at international events. NOI uses the OI format with a single submission opportunity per problem.
+  </Card>
+  <Card title="APIO" icon="globe" href="https://www.noi.cn">
+    The Asia-Pacific Informatics Olympiad, held in May. APIO follows the IOI format with real-time feedback and multiple submissions. Top Chinese students compete as representatives of China after performing well at NOI.
+  </Card>
+  <Card title="IOI" icon="medal" href="https://ioinformatics.org">
+    The International Olympiad in Informatics — the world championship of high-school competitive programming. Held each August, IOI uses the IOI contest format. China consistently places among the top-performing countries.
+  </Card>
+  <Card title="ICPC / CCPC" icon="users" href="https://icpc.global">
+    University-level competitions. The International Collegiate Programming Contest (ICPC) and the China Collegiate Programming Contest (CCPC) use a team format: three members, one machine, penalty-based scoring. These are the next milestone after graduating from high-school OI.
+  </Card>
+</CardGroup>
+
+## Contest Formats
+
+Different competitions use different judging formats, each with its own submission rules and scoring model.
+
+| Format | Submissions | Real-time Feedback | Scoring |
+|--------|------------|-------------------|---------|
+| **OI** (CSP, NOIP, NOI) | One per problem | No — results released after contest | Partial credit per test point |
+| **IOI** (APIO, IOI) | Unlimited | Yes — immediate result | Partial credit per test point |
+| **ICPC** (ICPC, CCPC) | Unlimited | Yes — immediate result | All-or-nothing per problem; penalty time for wrong submissions |
+| **CF** (Codeforces) | Unlimited | Partial (pretests during, full after) | Varies; Hack system available |
+
+<Note>
+In OI-format contests, even partial solutions earn points. A program that handles only a subset of test cases correctly still receives partial credit — making incremental solutions a viable strategy. In ICPC format, a problem only scores when all test cases pass.
+</Note>
+
+## The Knowledge Landscape
+
+OI covers an enormous breadth of computer science topics. The official NOI Syllabus organizes content into three tiers:
+
+- **Entry level (入门级)** — Basic C++ programming, simple data structures (stacks, queues, trees), fundamental algorithms (greedy, recursion, binary search, BFS/DFS), and elementary math.
+- **Advanced level (提高级)** — Complexity analysis, advanced STL, segment trees, Trie, union-find, graph algorithms (shortest paths, MST, SCC), dynamic programming variants, KMP, and number theory.
+- **NOI level (NOI 级)** — Heavy-duty structures (LCT, persistent data structures, HLD), advanced string algorithms (suffix automaton, AC automaton), network flow, complex DP optimization, FFT, and probability theory.
+
+## Getting Started
+
+<Steps>
+  <Step title="Learn C++ Fundamentals">
+    C++ is the standard language for OI in China. Start with basic syntax, data types (`int`, `long long`, `char`, `bool`), control flow (`if`, `for`, `while`), functions, arrays, and the STL. The `#include <bits/stdc++.h>` header is universally used in competitive programming to pull in all standard library headers at once.
+  </Step>
+  <Step title="Understand the Contest Environment">
+    OI problems are judged on an online judge. Your program reads from standard input and writes to standard output. Learn about the OI scoring model — partial credit per test point — and the verdict codes: AC (Accept), WA (Wrong Answer), TLE (Time Limit Exceeded), MLE (Memory Limit Exceeded), RE (Runtime Error), and CE (Compile Error).
+  </Step>
+  <Step title="Practice on Online Judges">
+    Platforms like Luogu (洛谷), BZOJ, and LibreOJ host thousands of OI problems organized by difficulty and topic. Start with entry-level problems (CSP-J difficulty) and work upward. Codeforces rounds are also excellent for regular practice.
+  </Step>
+  <Step title="Study Core Algorithms and Data Structures">
+    Work through the entry-level NOI syllabus systematically: sorting algorithms, prefix sums, difference arrays, binary search, DFS/BFS, basic DP, and simple graph algorithms. Build a personal template library as you go.
+  </Step>
+  <Step title="Participate in Real Contests">
+    Register for CSP-J (if you are a junior high student) or CSP-S (senior high). The first round is a multiple-choice exam; the second round is a programming contest. Real contest experience is irreplaceable — the time pressure and unfamiliar problems will reveal gaps in your preparation.
+  </Step>
+  <Step title="Advance Through the Ladder">
+    Strong CSP-S performance qualifies you for NOIP. NOIP results feed into provincial selections, which select participants for NOI. The very best NOI competitors are chosen for the national team to compete at APIO and IOI.
+  </Step>
+</Steps>
+
+<Tip>
+Upcoming contest dates for 2026: **APIO** May 7 · **NOI** July 18 · **IOI** August 9 · **CSP-J/S Round 1** September 19 · **CSP-J/S Round 2** October 31 · **NOIP** November 28.
+</Tip>

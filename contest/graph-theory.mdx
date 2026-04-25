@@ -1,0 +1,155 @@
+---
+title: "Graph Theory: Shortest Paths, MST, and Connectivity"
+description: "Overview of competitive programming graph algorithms — Dijkstra, Bellman-Ford, SPFA, Floyd-Warshall, Prim, Kruskal, SCC, BCC, and network flow."
+---
+
+Graph theory is one of the most heavily tested topic areas in competitive programming. Problems range from shortest paths and spanning trees to strongly connected components and maximum flow. Choosing the right algorithm depends on graph properties: whether edges have weights, whether negative weights appear, whether the graph is directed, and the sizes of n (vertices) and m (edges).
+
+<CardGroup cols={2}>
+  <Card title="Shortest paths" icon="route">
+    Dijkstra for non-negative weights, Bellman-Ford/SPFA for negative weights, and Floyd-Warshall for all-pairs shortest paths.
+  </Card>
+  <Card title="Spanning trees" icon="tree">
+    Kruskal's and Prim's algorithms for minimum spanning trees, and the Kruskal reconstruction tree for bottleneck path queries.
+  </Card>
+  <Card title="Graph connectivity" icon="circle-nodes">
+    Tarjan's algorithm for strongly connected components (SCC) and biconnected components (BCC), bridge and articulation point detection.
+  </Card>
+  <Card title="Network flow" icon="arrow-right-arrow-left">
+    Maximum flow (Dinic's algorithm), minimum cut, and bipartite matching as a flow problem.
+  </Card>
+  <Card title="Topological sort" icon="arrow-down-wide-short">
+    Linear ordering of DAG vertices; basis for DP on DAGs and dependency scheduling.
+  </Card>
+  <Card title="Tree algorithms" icon="diagram-project">
+    LCA, heavy-light decomposition, Euler tour technique, and centroid decomposition.
+  </Card>
+</CardGroup>
+
+## Graph representations
+
+The two standard representations in C++ are:
+
+- **Adjacency list** (`vector<pair<int,int>> G[N]`): O(V + E) space. Preferred for sparse graphs (most contest problems).
+- **Adjacency matrix** (`int a[N][N]`): O(V²) space. Only practical when V is small (≤ 1000); simplifies Floyd-Warshall.
+
+## Shortest path algorithms
+
+| Algorithm | Time complexity | Path type | Handles negative weights |
+|---|---|---|---|
+| Dijkstra | O(m log m) | Single-source | No |
+| Bellman-Ford / SPFA | O(nm) | Single-source | Yes |
+| Floyd-Warshall | O(n³) | All-pairs | Yes |
+| Johnson | O(nm log m) | All-pairs | Yes |
+
+### Dijkstra's algorithm
+
+Dijkstra greedily visits the unvisited vertex with the smallest tentative distance. Use a max-heap (negated distances) to implement the priority queue. It requires all edge weights to be non-negative.
+
+```cpp Dijkstra with priority queue
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 100005;
+vector<pair<int, int>> G[N]; // {neighbor, weight}
+int dis[N];
+bool vis[N];
+
+void dijkstra(int s) {
+    memset(dis, 0x3f, sizeof dis);
+    priority_queue<pair<int, int>> q; // max-heap; store {-dist, node}
+    q.push({dis[s] = 0, s});
+    while (!q.empty()) {
+        int u = q.top().second;
+        q.pop();
+        if (vis[u]) continue;
+        vis[u] = 1;
+        for (auto [v, w] : G[u]) {
+            if (dis[v] > dis[u] + w) {
+                dis[v] = dis[u] + w;
+                q.push({-dis[v], v});
+            }
+        }
+    }
+}
+```
+
+### SPFA (Bellman-Ford with queue)
+
+SPFA is a queue-based implementation of Bellman-Ford. It handles negative edges and can detect negative cycles by counting how many times each vertex is relaxed (if any vertex is relaxed ≥ n times, a negative cycle exists).
+
+```cpp SPFA with negative-cycle detection
+vector<pair<int, int>> G[N];
+int dis[N], cnt[N];
+bool vis[N];
+
+bool spfa(int s, int n) {
+    memset(dis, 0x3f, sizeof dis);
+    dis[s] = 0; vis[s] = 1;
+    queue<int> q;
+    q.push(s);
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        vis[u] = 0;
+        for (auto [v, w] : G[u]) {
+            if (dis[v] <= dis[u] + w) continue;
+            dis[v] = dis[u] + w;
+            cnt[v] = cnt[u] + 1;
+            if (cnt[v] >= n) return false; // negative cycle
+            if (!vis[v]) { q.push(v); vis[v] = 1; }
+        }
+    }
+    return true;
+}
+```
+
+## Minimum spanning tree
+
+A minimum spanning tree (MST) of a connected undirected graph is the spanning tree with minimum total edge weight.
+
+**Kruskal's algorithm** sorts all edges by weight, then greedily adds edges that connect different components (using Union-Find). Time: O(m log m).
+
+```cpp Kruskal's algorithm
+struct Edge {
+    int u, v, w;
+    bool operator<(const Edge &x) const { return w < x.w; }
+};
+vector<Edge> E;
+int fa[N];
+int find(int u) { return u == fa[u] ? u : fa[u] = find(fa[u]); }
+
+int kruskal(int n) {
+    for (int i = 1; i <= n; i++) fa[i] = i;
+    sort(E.begin(), E.end());
+    int ans = 0, cnt = 0;
+    for (auto [u, v, w] : E) {
+        if (cnt == n - 1) break;
+        int x = find(u), y = find(v);
+        if (x == y) continue;
+        fa[x] = y;
+        ans += w;
+        cnt++;
+    }
+    return cnt == n - 1 ? ans : -1; // -1 if graph is disconnected
+}
+```
+
+<Tip>
+  **Prim's algorithm** is an alternative to Kruskal that is more efficient on dense graphs. It maintains a priority queue of cheapest edges crossing the cut between visited and unvisited vertices, running in O((n + m) log n).
+</Tip>
+
+## Strongly connected components
+
+A strongly connected component (SCC) of a directed graph is a maximal set of vertices such that every vertex is reachable from every other. **Tarjan's algorithm** finds all SCCs in a single DFS in O(V + E) time using a stack and two timestamps per vertex (discovery time and low-link value).
+
+After condensation (collapsing each SCC to a single node), the result is a DAG, which enables further DP or topological reasoning.
+
+<Note>
+  **Biconnected components (BCC)** apply to undirected graphs. An articulation point is a vertex whose removal disconnects the graph; a bridge is an edge whose removal does. Tarjan's algorithm finds these too in O(V + E).
+</Note>
+
+## Network flow basics
+
+Maximum flow problems ask for the largest amount of "flow" that can be sent from a source `s` to a sink `t` respecting edge capacities. By the max-flow min-cut theorem, this equals the minimum capacity cut separating `s` from `t`. **Dinic's algorithm** runs in O(V² E) in general and O(E√V) on unit-capacity graphs, making it the practical standard.
+
+Common reductions to flow: bipartite matching, project selection, and certain covering/packing problems.

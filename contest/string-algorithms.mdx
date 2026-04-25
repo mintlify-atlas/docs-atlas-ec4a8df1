@@ -1,0 +1,143 @@
+---
+title: "String Algorithms: Hashing, KMP, Trie, and More"
+description: "String algorithms for OI — polynomial hashing, KMP, Z-function, Trie, Aho-Corasick automaton, and suffix array with C++ implementations."
+---
+
+String algorithms form a distinct and important category in competitive programming. Problems involving pattern matching, substring queries, dictionary lookups, and multi-pattern search all require specialized data structures and algorithms. This page introduces the core string techniques, from lightweight polynomial hashing to the powerful suffix array.
+
+<CardGroup cols={2}>
+  <Card title="String hashing" icon="hashtag">
+    Polynomial rolling hash maps strings to integers for O(1) substring comparison. Essential for duplicate detection and substring equality queries.
+  </Card>
+  <Card title="Trie (prefix tree)" icon="tree">
+    A tree that stores strings character by character, enabling O(|s|) insert and lookup. Foundation for AC automaton and XOR trie.
+  </Card>
+  <Card title="KMP pattern matching" icon="magnifying-glass">
+    Knuth-Morris-Pratt finds all occurrences of a pattern in a text in O(n + m) time using a failure function to avoid redundant comparisons.
+  </Card>
+  <Card title="Z-function" icon="z">
+    The Z-array stores the length of the longest substring starting at each position that matches a prefix of the string. Equivalent power to KMP.
+  </Card>
+  <Card title="AC automaton" icon="robot">
+    Combines a Trie with KMP failure links to search a text for all occurrences of multiple patterns simultaneously in O(n + total pattern length).
+  </Card>
+  <Card title="Suffix array" icon="arrow-down-a-z">
+    Sorts all suffixes of a string lexicographically. Combined with the LCP array, it supports virtually all suffix-based queries in O(n log n) construction.
+  </Card>
+</CardGroup>
+
+## String hashing
+
+Polynomial hashing maps a string to a number by treating characters as digits in a base-`B` number system modulo a prime `p`. With a good choice of base and modulus, collisions are extremely unlikely. Prefix hashes allow O(1) substring hash queries after O(n) preprocessing.
+
+```cpp Polynomial string hash
+using ull = unsigned long long;
+const int base = 131;
+const ull mod = 212370440130137957ULL;
+
+ull get_hash(const string &s) {
+    ull res = 0;
+    for (char c : s)
+        res = (res * base + c) % mod;
+    return res;
+}
+```
+
+For substring queries, precompute prefix hashes and powers:
+
+```cpp Prefix hash for O(1) substring queries
+const int N = 100005;
+ull h[N], pw[N];
+
+void build(const string &s, int n) {
+    pw[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        h[i] = (h[i - 1] * base + s[i - 1]) % mod;
+        pw[i] = pw[i - 1] * base % mod;
+    }
+}
+
+// hash of s[l..r] (1-indexed)
+ull query(int l, int r) {
+    return (h[r] - h[l - 1] * pw[r - l + 1] % mod + mod * 2) % mod;
+}
+```
+
+<Note>
+  Using **double hashing** (two independent hash moduli) reduces the probability of a collision to approximately 1/p², making it safe even in adversarial settings.
+</Note>
+
+## Trie (prefix tree)
+
+A Trie stores a set of strings as a tree where each edge represents one character. Insert and lookup both run in O(|s|). It is the backbone of the AC automaton, and a binary Trie over bit representations supports XOR-maximum queries.
+
+```cpp Trie implementation
+const int N = 100005;
+const int M = 26; // alphabet size
+
+struct Trie {
+    int T[N][M], val[N];
+    int cnt = 0;
+
+    void insert(const string &s) {
+        int u = 0;
+        for (char ch : s) {
+            int c = ch - 'a';
+            if (!T[u][c]) T[u][c] = ++cnt;
+            val[u = T[u][c]]++;
+        }
+    }
+
+    int query(const string &s) {
+        int u = 0;
+        for (char ch : s) {
+            int c = ch - 'a';
+            if (!T[u][c]) return 0;
+            u = T[u][c];
+        }
+        return val[u];
+    }
+};
+```
+
+## KMP pattern matching
+
+KMP finds all occurrences of pattern `t` in text `s` in O(n + m) time. The key is the **failure function** (prefix function) `nxt[i]`, which stores the length of the longest proper prefix of `t[0..i]` that is also a suffix. When a mismatch occurs during search, `nxt` lets you resume without re-examining already-matched characters.
+
+```cpp KMP — build failure function and search
+int kmp(const string &s, const string &t) {
+    int n = s.size(), m = t.size();
+    vector<int> nxt(m, 0);
+    // Build failure function
+    for (int i = 1, j = 0; i < m; i++) {
+        while (j && t[i] != t[j]) j = nxt[j - 1];
+        if (t[i] == t[j]) j++;
+        nxt[i] = j;
+    }
+    // Search
+    for (int i = 0, j = 0; i < n; i++) {
+        while (j && s[i] != t[j]) j = nxt[j - 1];
+        if (s[i] == t[j]) j++;
+        if (j == m) return i - m + 1; // first occurrence index
+    }
+    return -1; // not found
+}
+```
+
+## Z-function
+
+The Z-array `z[i]` stores the length of the longest substring starting at position `i` that matches a prefix of the string. It is computed in O(n) using a two-pointer window. The Z-function is interchangeable with KMP in power but often simpler to implement for certain problems.
+
+<Tip>
+  To search pattern `t` in text `s`, compute the Z-function of the concatenated string `t + '#' + s`. Any position in the suffix where `z[i] == m` (pattern length) is a match.
+</Tip>
+
+## AC automaton
+
+The Aho-Corasick automaton extends a Trie with KMP-style failure links so that all patterns from a dictionary can be located in a text in a single O(n) pass. It is essential for multi-pattern matching problems.
+
+Construction: build a Trie over all patterns, then compute failure links with BFS. Search: process the text character by character, following automaton transitions and collecting matches via failure link chains.
+
+## Suffix array
+
+The suffix array `sa[i]` stores the starting index of the i-th lexicographically smallest suffix of a string. With O(n log n) construction (e.g., the SA-IS or prefix-doubling algorithm) and the LCP (longest common prefix) array built via Kasai's algorithm in O(n), you can answer most suffix-related queries efficiently — including the number of distinct substrings, longest repeated substring, and longest common substring of multiple strings.

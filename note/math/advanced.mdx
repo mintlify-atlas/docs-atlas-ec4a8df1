@@ -1,0 +1,203 @@
+---
+title: "Advanced Mathematics: University-Level Topics"
+description: "University-level mathematics notes covering calculus, linear algebra, probability theory, discrete mathematics, and elementary number theory."
+---
+
+University mathematics is a substantial step beyond the high school curriculum in both abstraction and rigor. Where high school math teaches you to compute, university math increasingly asks you to prove — to understand *why* results are true, not just *how* to apply them. These notes cover the core subjects encountered in a typical Chinese university STEM program, with an emphasis on building genuine understanding rather than exam-only pattern matching.
+
+<Note>
+The source material here is intentionally sparse — these are early-stage notes. The structure is designed so that each subject can be developed in depth over time.
+</Note>
+
+## Subjects
+
+<CardGroup cols={2}>
+  <Card title="Calculus" icon="wave-sine">
+    Limits, continuity, derivatives, integrals, series, and multivariable calculus. The foundation of analysis.
+  </Card>
+  <Card title="Linear Algebra" icon="table-cells">
+    Matrices, determinants, vector spaces, linear transformations, eigenvalues, and eigenvectors.
+  </Card>
+  <Card title="Probability & Statistics" icon="chart-bar">
+    Probability spaces, random variables, distributions, expectation, and mathematical statistics.
+  </Card>
+  <Card title="Discrete Mathematics" icon="circle-nodes">
+    Logic, set theory, graph theory, combinatorics, and formal languages.
+  </Card>
+  <Card title="Elementary Number Theory" icon="hashtag">
+    Divisibility, primes, congruences, and classical results with connections to competition mathematics.
+  </Card>
+  <Card title="High School Math" icon="graduation-cap" href="/note/math/highschool">
+    Back to the high school curriculum — the foundation everything else builds on.
+  </Card>
+</CardGroup>
+
+## Calculus
+
+Calculus is the study of continuous change. It is split into two main branches — differential calculus (rates of change) and integral calculus (accumulation) — unified by the Fundamental Theorem of Calculus.
+
+### Limits & Continuity
+
+A limit describes the value a function approaches as its input approaches some value. Formally, $\lim_{x \to a} f(x) = L$ means that $f(x)$ can be made arbitrarily close to $L$ by taking $x$ sufficiently close to $a$.
+
+Key results:
+- Squeeze theorem
+- L'Hôpital's rule for indeterminate forms ($0/0$, $\infty/\infty$)
+- Continuity and the Intermediate Value Theorem
+
+### Differential Calculus
+
+The **derivative** $f'(x)$ measures the instantaneous rate of change of $f$ at $x$. Geometrically, it is the slope of the tangent line to the curve.
+
+Core differentiation rules:
+
+| Rule | Formula |
+|------|---------|
+| Power rule | $(x^n)' = nx^{n-1}$ |
+| Product rule | $(fg)' = f'g + fg'$ |
+| Quotient rule | $(f/g)' = (f'g - fg')/g^2$ |
+| Chain rule | $(f \circ g)' = f'(g) \cdot g'$ |
+
+Common derivatives: $(\sin x)' = \cos x$, $(\cos x)' = -\sin x$, $(e^x)' = e^x$, $(\ln x)' = 1/x$.
+
+Applications: finding maxima and minima, the Mean Value Theorem, Taylor series approximation.
+
+### Integral Calculus
+
+The **definite integral** $\int_a^b f(x)\,dx$ measures the net signed area under a curve. The **Fundamental Theorem of Calculus** connects differentiation and integration:
+
+$$
+\frac{d}{dx}\int_a^x f(t)\,dt = f(x)
+$$
+
+Integration techniques: substitution, integration by parts ($\int u\,dv = uv - \int v\,du$), partial fractions, trigonometric substitution.
+
+Improper integrals extend the definition to unbounded intervals or unbounded integrands.
+
+### Series
+
+An infinite series $\sum_{n=1}^{\infty} a_n$ converges if its partial sums approach a finite limit. Key tests: comparison, ratio, root, integral. Power series and Taylor/Maclaurin series represent functions as infinite polynomials:
+
+$$
+e^x = \sum_{n=0}^{\infty} \frac{x^n}{n!}, \quad \sin x = \sum_{n=0}^{\infty} \frac{(-1)^n x^{2n+1}}{(2n+1)!}
+$$
+
+### Multivariable Calculus
+
+Extends single-variable ideas to functions of several variables: partial derivatives, gradient vectors, double and triple integrals, and the theorems of Green, Stokes, and Gauss.
+
+## Linear Algebra
+
+Linear algebra studies linear equations, vector spaces, and linear maps. It is arguably the most practically useful branch of mathematics — appearing in machine learning, physics, computer graphics, and virtually every area of applied mathematics.
+
+### Matrices & Systems of Equations
+
+A **matrix** is a rectangular array of numbers. Systems of linear equations $Ax = b$ are solved using Gaussian elimination (row reduction to echelon form).
+
+Key matrix operations: addition, scalar multiplication, matrix multiplication (non-commutative in general), transposition.
+
+### Determinants
+
+The **determinant** $\det(A)$ of a square matrix is a scalar that encodes geometric and algebraic information. $\det(A) \neq 0$ if and only if $A$ is invertible.
+
+Properties: $\det(AB) = \det(A)\det(B)$, $\det(A^T) = \det(A)$, row operations affect the determinant predictably.
+
+Computing: $2\times 2$ case directly, larger cases via cofactor expansion or row reduction.
+
+### Vector Spaces
+
+A **vector space** is a set with addition and scalar multiplication satisfying eight axioms. Subspaces, span, linear independence, bases, and dimension are the core structural concepts.
+
+The **rank** of a matrix equals the dimension of its column space (and row space). Rank-nullity theorem: $\text{rank}(A) + \text{nullity}(A) = n$.
+
+### Eigenvalues & Eigenvectors
+
+A nonzero vector $v$ is an **eigenvector** of $A$ with **eigenvalue** $\lambda$ if $Av = \lambda v$. Eigenvalues are roots of the characteristic polynomial $\det(A - \lambda I) = 0$.
+
+Diagonalization: if $A$ has $n$ linearly independent eigenvectors, then $A = PDP^{-1}$ where $D$ is diagonal. This simplifies computing $A^k$ and understanding the long-run behavior of linear systems.
+
+The **spectral theorem** states that real symmetric matrices are always diagonalizable with an orthonormal basis of eigenvectors.
+
+## Probability Theory & Mathematical Statistics
+
+### Probability Spaces
+
+A probability space $(\Omega, \mathcal{F}, P)$ consists of a sample space $\Omega$, a $\sigma$-algebra $\mathcal{F}$ of events, and a probability measure $P$.
+
+Classical probability assigns $P(A) = |A|/|\Omega|$ for equally likely outcomes. Geometric probability assigns probability proportional to measure (length, area, volume).
+
+### Random Variables & Distributions
+
+A **random variable** $X$ maps outcomes to real numbers. Key distributions:
+
+| Distribution | Use case |
+|-------------|----------|
+| Bernoulli$(p)$ | Single trial with success probability $p$ |
+| Binomial$(n, p)$ | Count of successes in $n$ independent trials |
+| Geometric$(p)$ | Number of trials until first success |
+| Poisson$(\lambda)$ | Count of rare events in a fixed interval |
+| Normal$(\mu, \sigma^2)$ | Continuous; the bell curve; central limit theorem |
+| Exponential$(\lambda)$ | Waiting time between Poisson events |
+
+### Expectation & Variance
+
+$E[X] = \sum x \cdot P(X=x)$ (discrete) or $\int x f(x)\,dx$ (continuous).
+
+$\text{Var}(X) = E[(X - \mu)^2] = E[X^2] - (E[X])^2$.
+
+The **Central Limit Theorem**: for large $n$, the sample mean $\bar{X}$ is approximately normal regardless of the underlying distribution.
+
+## Elementary Number Theory
+
+Number theory studies the integers and their properties. It is the oldest branch of pure mathematics, yet many of its questions remain unsolved.
+
+### Divisibility & Primes
+
+$a \mid b$ means $a$ divides $b$ (i.e., $b = ka$ for some integer $k$). The **greatest common divisor** $\gcd(a,b)$ is computed efficiently by the **Euclidean algorithm**.
+
+The **Fundamental Theorem of Arithmetic**: every integer $n > 1$ factors uniquely into primes (up to order).
+
+### Congruences
+
+$a \equiv b \pmod{m}$ means $m \mid (a - b)$. Congruences support arithmetic operations and enable modular arithmetic.
+
+Key results: **Fermat's Little Theorem** ($a^{p-1} \equiv 1 \pmod{p}$ for prime $p$ and $\gcd(a,p)=1$), **Euler's Theorem** ($a^{\phi(n)} \equiv 1 \pmod{n}$), **Chinese Remainder Theorem** (simultaneous congruences with coprime moduli have a unique solution mod their product).
+
+### Connections to Contest Mathematics
+
+Many competition problems rely on number theory: divisibility arguments, modular arithmetic, Diophantine equations, and properties of prime factorizations. See the contest mathematics section for problem-oriented coverage.
+
+## Discrete Mathematics
+
+Discrete mathematics studies structures that are fundamentally countable or finite — the mathematical backbone of computer science.
+
+### Logic & Proof
+
+Propositional logic, predicate logic, proof techniques (direct, contradiction, contrapositive, induction), and the language of mathematical writing.
+
+### Graph Theory
+
+A **graph** $G = (V, E)$ consists of vertices and edges. Key concepts: degree, paths, cycles, connectivity, trees, Euler circuits, Hamiltonian paths, planarity, and graph coloring.
+
+### Combinatorics
+
+Counting via the addition and multiplication principles, permutations, combinations, the inclusion-exclusion principle, generating functions, and recurrence relations.
+
+## Reference Materials
+
+### Calculus
+
+- 《高等数学上》期末不挂科 — 蜂考 (bilibili)
+- 《高等数学下》期末不挂科 — 蜂考 (bilibili)
+
+### Linear Algebra
+
+- 《线性代数》期末不挂科 — 一高数 / 蜂考 (bilibili)
+
+### Probability & Statistics
+
+- 《概率论与数理统计》期末不挂科 — 蜂考 (bilibili)
+
+### Discrete Mathematics
+
+- 《离散数学》期末不挂科 — 蜂考 (bilibili)

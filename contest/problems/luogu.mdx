@@ -1,0 +1,170 @@
+---
+title: "Luogu (洛谷): Problems, Difficulty, and Contribution Tips"
+description: "Luogu guide for OI: problem categories, color difficulty scale, verdicts, P3xxx template problems, editorial format, and contributing translations."
+---
+
+Luogu (洛谷) is China's most widely used competitive programming platform, hosting tens of thousands of problems ranging from introductory exercises to IOI-level challenges. Founded in 2014, it has grown into a comprehensive ecosystem that includes a problem library, editorial system, team contests, and a community forum. For anyone preparing for Chinese olympiad competitions (NOIP, CSP, NOI), Luogu is the primary training ground.
+
+## Problem Numbering and Categories
+
+Luogu problems are prefixed with a letter indicating their origin:
+
+| Prefix | Origin |
+|---|---|
+| **P** | Luogu main problem library (主题库) |
+| **B** | Luogu beginner problems (入门题库) |
+| **CF** | Codeforces problems (mirrored) |
+| **AT** | AtCoder problems (mirrored) |
+| **UVA** | UVa Online Judge (mirrored) |
+| **SP** | SPOJ (mirrored) |
+| **T** | Team/contest-private problems |
+
+Within the main library (P prefix), problem numbers loosely correlate with difficulty:
+
+| Range | Typical Content |
+|---|---|
+| P1xxx | Entry-level: basic I/O, simple loops, sorting |
+| P2xxx | NOIP-level: DP, graph basics, greedy |
+| P3xxx | CSP/NOIP+ level: template problems for major algorithms |
+| P4xxx | Province/NOI preliminary: advanced data structures, complex DP |
+| P5xxx–P8xxx | NOI / IOI / ICPC level: high difficulty, specialized topics |
+
+## Difficulty Labels
+
+Luogu uses a color-coded difficulty system:
+
+| Color | Label | Rough Codeforces Equivalent |
+|---|---|---|
+| ⚪ Gray | 入门 (Beginner) | ≤ 1000 |
+| 🟤 Brown | 普及− | 1000–1200 |
+| 🔵 Blue | 普及/提高− | 1200–1600 |
+| 🟢 Green | 普及+/提高 | 1600–2100 |
+| 🟡 Yellow | 提高+/省选− | 2100–2600 |
+| 🔴 Red | 省选/NOI− | 2600–3000 |
+| 🟣 Purple | NOI/NOI+/CTSC | 3000+ |
+| 🔵 Dark Blue | IOI/ICPC | Elite level |
+
+## Submitting and Reading Verdicts
+
+After writing your solution in the online editor or uploading a `.cpp` file, select the language (typically C++17 or C++14) and click Submit. Luogu runs your code against all test cases and returns one of these verdicts:
+
+| Verdict | Chinese | Meaning |
+|---|---|---|
+| **AC** | 通过 | All test cases passed |
+| **WA** | 答案错误 | Wrong output on at least one case |
+| **TLE** | 超时 | Exceeded time limit |
+| **MLE** | 超内存 | Exceeded memory limit |
+| **RE** | 运行错误 | Runtime error (segfault, out of bounds, etc.) |
+| **CE** | 编译错误 | Compilation failed |
+| **UKE** | 未知错误 | Unknown judge error — try resubmitting |
+
+<Tip>
+When you get TLE, check your algorithm's time complexity first before optimizing constants. A brute-force O(n²) won't pass with fast I/O — you need an O(n log n) approach.
+</Tip>
+
+## Notable Template Problems
+
+These problems from the P3xxx range are canonical templates for major algorithms. Solving them confirms your implementation is correct before using the same code in harder problems.
+
+| Problem | Topic |
+|---|---|
+| **P3366** | Kruskal's Minimum Spanning Tree |
+| **P3367** | Disjoint Set Union (DSU) |
+| **P3368** | BIT: range add, point query |
+| **P3369** | Balanced BST (all 6 operations) |
+| **P3371** | Dijkstra single-source shortest path |
+| **P3372** | Segment tree: range add, range sum |
+| **P3373** | Segment tree: range multiply + range add |
+| **P3374** | BIT: point update, prefix sum |
+| **P3377** | Leftist tree (可并堆) |
+| **P3378** | Heap (std::priority_queue template) |
+| **P3379** | LCA: lowest common ancestor |
+| **P3834** | Range k-th smallest (persistent segment tree) |
+| **P3865** | Sparse Table: O(1) RMQ |
+| **P3919** | Persistent array (persistent segment tree) |
+
+## Contributing to Luogu
+
+Luogu's community contribution system awards permanent **咕值** (guzhi points) for submitting accepted editorials and translating problems into the main library.
+
+### Writing Editorials (题解)
+
+The standard editorial template (from the source) is:
+
+```markdown
+[![](https://img.shields.io/badge/Luogu-{pid}-blue?style=for-the-badge&logo=luogu)](https://www.luogu.com.cn/problem/{pid})
+
+## 参考资料
+
+## 题意简述
+
+## 基础知识
+
+## 解题思路
+
+## 参考代码
+
+```cpp
+// your solution here
+```
+```
+
+Sections like "参考资料" and "基础知识" are optional — include only what adds value. Editorials must follow the [Luogu editorial standard](https://help.luogu.com.cn/rules/academic/solution-standard) to pass review.
+
+### Translating Problems (搬题)
+
+Translating problems from international contests (IOI, CEOI, NOISG, etc.) into Luogu's main library earns 1 permanent guzhi point per accepted problem. 30 accepted translations earns the full 30-point "搬题" quota.
+
+The translation process involves:
+1. Obtaining the original problem PDF and test data.
+2. Translating the problem statement into Chinese following the [Luogu problem standard](https://help.luogu.com.cn/rules/academic/problem-standard).
+3. Writing a Special Judge checker (if needed) using [testlib](https://github.com/MikeMirzayanov/testlib).
+4. Generating or verifying test data and submitting for review.
+
+A useful AI prompt for translating English OI problem PDFs into the standard Luogu format:
+
+```text
+请将提供的算法竞赛题目的英文 PDF 翻译成中文，并严格遵循《洛谷主题库题目规范》
+（https://help.luogu.com.cn/rules/academic/problem-standard）整理成 Markdown 格式。
+全文忠实翻译，不增删任何信息。数学公式使用 LaTeX，数字用 $ 包裹。
+```
+
+### Special Judge Checker Template
+
+For problems where multiple outputs are valid, a Special Judge (SPJ) checker is required. The checker uses Codeforces's [testlib](https://github.com/MikeMirzayanov/testlib):
+
+```cpp
+#include "testlib.h"
+
+int main(int argc, char* argv[]) {
+    setName("compares two doubles, eps = 0.01");
+    registerTestlibCmd(argc, argv);
+    double pans = ouf.readDouble();
+    double jans = ans.readDouble();
+    if (fabs(pans - jans) < 0.01)
+        quitf(_ok, "The answer is correct.");
+    else
+        quitf(_wa, "Expected = %f, found = %f", jans, pans);
+}
+```
+
+## Tips for Using Luogu Effectively
+
+<CardGroup cols={2}>
+  <Card title="Use topic tags" icon="tag">
+    Every problem has algorithm tags. Filter by tag to find practice problems for a specific topic instead of browsing randomly.
+  </Card>
+  <Card title="Read editorials before code" icon="book-open">
+    Editorial explanations reveal the key insight. Reading raw code without understanding the idea is far less valuable for learning.
+  </Card>
+  <Card title="Use the discussion section" icon="comments">
+    For hard problems, the 讨论 (discussion) often contains crucial hints, common mistakes, and anti-hack test cases shared by other users.
+  </Card>
+  <Card title="Track your progress" icon="chart-bar">
+    Luogu's personal page shows your AC count by difficulty level. Set a goal (e.g., clear all 普及− problems) and work toward it systematically.
+  </Card>
+</CardGroup>
+
+<Note>
+Luogu's data quality has improved significantly since 2020. Older problems (especially P1xxx and P2xxx from before 2018) sometimes have weak test data that accepts incorrect solutions. If your solution passes but you're not confident it's correct, try submitting to the "加强版" (strengthened) version of the problem if one exists.
+</Note>

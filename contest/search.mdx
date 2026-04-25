@@ -1,0 +1,123 @@
+---
+title: "Search Algorithms: DFS, BFS, and Heuristics"
+description: "Overview of search algorithms for competitive programming — depth-first search, breadth-first search, bidirectional search, A*, and pruning strategies."
+---
+
+Search algorithms systematically explore state spaces to find solutions or shortest paths. In competitive programming, mastering DFS and BFS — and knowing when to apply each — is foundational. More advanced techniques like bidirectional search, A\*, and careful pruning extend these ideas to problems that would otherwise be intractable.
+
+<CardGroup cols={2}>
+  <Card title="Depth-first search" icon="arrow-down-to-line">
+    Recursive or stack-based traversal that explores each branch fully before backtracking. Essential for permutation generation, connectivity, and backtracking problems.
+  </Card>
+  <Card title="Breadth-first search" icon="wave-pulse">
+    Layer-by-layer traversal using a queue. Guaranteed to find the shortest path in unweighted graphs; the go-to algorithm for grid shortest-path problems.
+  </Card>
+  <Card title="Bidirectional search" icon="arrows-left-right">
+    Simultaneously searches forward from the start and backward from the goal, meeting in the middle. Dramatically reduces the search space for symmetric problems.
+  </Card>
+  <Card title="Heuristic search (A*)" icon="compass">
+    Augments BFS with a heuristic function that estimates cost-to-goal, guiding exploration toward promising states and avoiding unnecessary work.
+  </Card>
+</CardGroup>
+
+## Depth-first search
+
+DFS explores as far as possible along each branch before backtracking. It naturally models recursion and is the backbone of most backtracking solutions. The key pattern is: mark a state as visited, recurse into neighbors, then unmark (restore) when returning.
+
+<Note>
+  DFS does **not** guarantee shortest paths in general graphs. Use BFS or Dijkstra when path length matters.
+</Note>
+
+```cpp DFS template
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 100005;
+vector<int> G[N];
+bool vis[N];
+
+void dfs(int u) {
+    vis[u] = true;
+    for (int v : G[u]) {
+        if (!vis[v]) dfs(v);
+    }
+}
+```
+
+For backtracking problems (e.g., generating all permutations), you unmark the visited state after the recursive call returns so other branches can reuse it.
+
+```cpp DFS with backtracking
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 10;
+int n, a[N];
+bool used[N];
+
+void dfs(int depth) {
+    if (depth == n) {
+        for (int i = 0; i < n; i++) cout << a[i] << ' ';
+        cout << '\n';
+        return;
+    }
+    for (int i = 1; i <= n; i++) {
+        if (used[i]) continue;
+        used[i] = true;
+        a[depth] = i;
+        dfs(depth + 1);
+        used[i] = false; // backtrack
+    }
+}
+
+int main() {
+    cin >> n;
+    dfs(0);
+}
+```
+
+## Breadth-first search
+
+BFS explores states level by level using a queue, which guarantees it finds the minimum number of steps in an unweighted graph. Each node is enqueued at most once, giving O(V + E) time.
+
+```cpp BFS shortest path
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 100005;
+vector<int> G[N];
+int dis[N];
+
+void bfs(int s) {
+    memset(dis, -1, sizeof dis);
+    queue<int> q;
+    dis[s] = 0;
+    q.push(s);
+    while (!q.empty()) {
+        int u = q.front(); q.pop();
+        for (int v : G[u]) {
+            if (dis[v] != -1) continue;
+            dis[v] = dis[u] + 1;
+            q.push(v);
+        }
+    }
+}
+```
+
+## Pruning strategies
+
+Pruning eliminates branches of the search tree that cannot lead to a better answer. Two common forms:
+
+- **Feasibility pruning**: stop if the current partial state already violates a constraint (e.g., weight exceeds capacity).
+- **Optimality pruning**: stop if even the best possible completion of the current branch cannot beat the current best answer.
+
+<Tip>
+  Tight pruning bounds often separate AC from TLE on backtracking problems. Always ask: "Is it impossible to improve from here?" and cut early if so.
+</Tip>
+
+## Heuristic search (A*)
+
+A\* extends BFS/Dijkstra by adding a heuristic `h(u)` — a lower-bound estimate of the cost from `u` to the goal. The priority queue orders by `f(u) = g(u) + h(u)`, where `g(u)` is the known cost from the source. When `h` is admissible (never overestimates), A\* is guaranteed to find the optimal path.
+
+<Warning>
+  An inadmissible heuristic can cause A\* to return a suboptimal answer. Verify that your heuristic is a true lower bound before relying on it.
+</Warning>

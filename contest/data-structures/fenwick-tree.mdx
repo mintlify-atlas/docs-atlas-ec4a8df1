@@ -1,0 +1,170 @@
+---
+title: "Fenwick Tree (BIT): Prefix Sums and Range Updates in C++"
+description: "Binary Indexed Tree for OI: lowbit trick, point updates, prefix sums, range updates via difference arrays, 2D BIT, and BIT vs segment tree trade-offs."
+---
+
+A Fenwick tree (also called a Binary Indexed Tree, or BIT) is a compact data structure that answers prefix-sum queries and handles point updates in O(log n) time using O(n) space. It exploits the binary representation of indices: each index `i` stores the sum of a specific range determined by the lowest set bit of `i`, written as `i & -i` (the "lowbit" trick). Despite being simpler and faster in practice than a segment tree, it covers a large fraction of range-query problems.
+
+## The Lowbit Trick
+
+For any positive integer `i`, `i & -i` isolates the lowest set bit. This governs which elements each BIT cell covers:
+
+- **Update path**: after updating index `i`, move to `i + (i & -i)` to propagate the change upward.
+- **Query path**: to compute the prefix sum up to `i`, accumulate `c[i]` then move to `i - (i & -i)` to strip the lowest bit.
+
+Both paths visit at most O(log n) nodes.
+
+<Tabs>
+  <TabItem value="Point Update / Prefix Sum">
+
+This is the canonical BIT, taken directly from the source:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+const int N = 100005;
+
+struct BIT {
+    int c[N];
+    // Add v to position u (1-indexed)
+    void add(int u, int v) {
+        while (u < N) { c[u] += v; u += u & -u; }
+    }
+    // Prefix sum [1, u]
+    int sum(int u) {
+        int res = 0;
+        while (u) { res += c[u]; u -= u & -u; }
+        return res;
+    }
+    // Range sum [l, r]
+    int query(int l, int r) { return sum(r) - sum(l - 1); }
+} bit;
+```
+
+<Note>
+BIT indices must be 1-based. Calling `add(0, v)` or `sum(0)` will loop forever because `0 & -0 == 0`. Always offset your data by 1 when using 0-indexed arrays.
+</Note>
+
+  </TabItem>
+  <TabItem value="Range Update / Point Query">
+
+By storing a **difference array** in the BIT, you can flip the semantics: add `v` to every element in `[l, r]` (range update) and query the value at a single position (point query), both in O(log n).
+
+Adding `v` to `[l, r]` becomes `add(l, v)` and `add(r+1, -v)` on the difference BIT, and the value at position `x` is `sum(x)`.
+
+```cpp
+struct BITDiff {
+    long long c[N];
+    void add(int u, long long v) {
+        while (u < N) { c[u] += v; u += u & -u; }
+    }
+    long long sum(int u) {
+        long long res = 0;
+        while (u) { res += c[u]; u -= u & -u; }
+        return res;
+    }
+    // Range add: add v to all elements in [l, r]
+    void range_add(int l, int r, long long v) {
+        add(l, v);
+        add(r + 1, -v);
+    }
+    // Point query: value at position x
+    long long point_query(int x) { return sum(x); }
+};
+```
+
+  </TabItem>
+  <TabItem value="Range Update / Range Query (Two BITs)">
+
+Supporting both range updates and range queries requires two BITs. When you add `v` to `[l, r]`, the prefix sum up to position `p` satisfies:
+
+```
+prefix(p) = B1[p] * p - B2[p]
+```
+
+where `B1` and `B2` are maintained together on every update.
+
+```cpp
+struct BIT2 {
+    long long b1[N], b2[N];
+    void add(long long b[], int u, long long v) {
+        for (int i = u; i < N; i += i & -i) b[i] += v;
+    }
+    long long sum(long long b[], int u) {
+        long long res = 0;
+        for (int i = u; i; i -= i & -i) res += b[i];
+        return res;
+    }
+    // Add v to [l, r]
+    void range_add(int l, int r, long long v) {
+        add(b1, l, v);       add(b1, r+1, -v);
+        add(b2, l, v*(l-1)); add(b2, r+1, -v*r);
+    }
+    // Prefix sum [1, x]
+    long long prefix(int x) { return sum(b1, x) * x - sum(b2, x); }
+    // Range sum [l, r]
+    long long query(int l, int r) { return prefix(r) - prefix(l-1); }
+};
+```
+
+  </TabItem>
+  <TabItem value="2D BIT">
+
+For problems on a 2D grid (point update and rectangle sum query), extend the BIT to two dimensions:
+
+```cpp
+struct BIT2D {
+    long long c[305][305];
+    int n, m;
+    void add(int x, int y, long long v) {
+        for (int i = x; i <= n; i += i & -i)
+            for (int j = y; j <= m; j += j & -j)
+                c[i][j] += v;
+    }
+    long long sum(int x, int y) {
+        long long res = 0;
+        for (int i = x; i; i -= i & -i)
+            for (int j = y; j; j -= j & -j)
+                res += c[i][j];
+        return res;
+    }
+};
+```
+
+  </TabItem>
+</Tabs>
+
+## Comparison with Segment Tree
+
+<CardGroup cols={2}>
+  <Card title="Choose BIT when..." icon="bolt">
+    The operation is **sum** (or any invertible group). You want minimal code (~10 lines) and the smallest constant factor. 2D extension is straightforward at O(log² n).
+  </Card>
+  <Card title="Choose segment tree when..." icon="tree">
+    You need **min/max** aggregates, lazy propagation with non-invertible tags, range assign, or a complex custom merge function. More code (~40 lines) but far more general.
+  </Card>
+</CardGroup>
+
+| Feature | BIT | Segment Tree |
+|---|---|---|
+| Code length | ~10 lines | ~40 lines |
+| Constant factor | Very small | Larger |
+| Range update + range query | Possible (2 BITs) | Natural with lazy tag |
+| Non-invertible ops (min, max) | **Not supported** | Supported |
+| 2D extension | O(log² n) | More complex |
+| Memory | O(n) | O(4n) |
+
+<Tip>
+Prefer BIT when the operation is sum. Use a segment tree when you need min/max aggregates, lazy propagation with non-invertible tags, or more complex merge functions.
+</Tip>
+
+## Practice Problems
+
+- **P3374** — BIT template: point update, prefix sum query
+- **P3368** — BIT difference array: range update, point query
+- **P3372** — Range update, range sum (solvable with two BITs or segment tree)
+- **P4514** — 2D BIT: rectangle update and query
+
+<Warning>
+When the array values can be negative, `sum` still works correctly since BIT supports subtraction. However, if you need range **minimum** or **maximum**, a BIT cannot help — use a segment tree instead.
+</Warning>

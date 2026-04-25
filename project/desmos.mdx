@@ -1,0 +1,95 @@
+---
+title: "Desmos Projects: Math Art and Interactive Graphs"
+description: Desmos graphing and geometry projects by lailai — physics simulations, geometric constructions, flag drawings, and the award-winning iClock math art piece.
+---
+
+[Desmos](https://www.desmos.com) is a browser-based graphing calculator and geometry tool that lets you plot equations, create interactive sliders, and build animated visualizations entirely with mathematical expressions. It is a natural fit for exploring mathematical ideas visually — from physics optics to artistic renderings of real-world shapes.
+
+<CardGroup cols={2}>
+  <Card title="Calculator Projects" icon="chart-line" href="#calculator-projects">
+    Interactive graph explorations: a convex lens optics model, cell membrane fusion using Cassini ovals, and national flag renderings.
+  </Card>
+  <Card title="Geometry Projects" icon="shapes" href="#geometry-projects">
+    Compass-and-straightedge constructions in Desmos Geometry: a regular heptadecagon, three-circle common tangents, Apple logo, and the Chinese national flag.
+  </Card>
+  <Card title="iClock" icon="clock" href="#iclock">
+    An award-winning animated clock built entirely from mathematical functions — a finalist in the Desmos 2024 Math Art Expo.
+  </Card>
+</CardGroup>
+
+---
+
+## Calculator Projects
+
+These projects use the Desmos graphing calculator to model physical and visual phenomena through equations.
+
+### Convex Lens Model
+
+An interactive optics demonstration based on the thin lens formula. Given focal length $f$ and object distance $u$, the image distance $v$ is:
+
+$$
+\frac{1}{f} = \frac{1}{u} + \frac{1}{v}
+$$
+
+When the focal length is normalized to 1:
+
+$$
+v = \frac{u}{u - 1}
+$$
+
+Dragging a slider for $u$ shows how the image position and magnification change across the six optical cases (object beyond $2f$, at $2f$, between $f$ and $2f$, at $f$, inside $f$, and virtual).
+
+### Cell Membrane Fusion
+
+A striking visual effect that simulates biological cell membranes merging and splitting, based on Cassini ovals. The equation computes the set of points where the product of distances to $n$ fixed foci equals $r^n$:
+
+$$
+\prod_{i=1}^{n} \sqrt{(x - x_i)^2 + (y - y_i)^2} = r^n
+$$
+
+When $n = 2$ and the product equals $a^2$, this reduces to the classic Cassini oval; when the two foci coincide, the curve becomes a Bernoulli lemniscate.
+
+### Flag Drawings
+
+- **French Flag** — Three rectangular color regions in the correct proportions.
+- **American Flag** — Constructed from the official United States Code specifications, using geometric primitives to place all 50 stars and 13 stripes at exact relative positions.
+
+---
+
+## Geometry Projects
+
+These projects use Desmos Geometry — a ruler-and-compass construction environment — to reproduce classical and real-world geometric figures.
+
+### Regular Heptadecagon (17-gon)
+
+A compass-and-straightedge construction of the regular 17-sided polygon, following the classical Gaussian method. Carl Friedrich Gauss proved in 1796 that this polygon is constructible, making it one of the landmark results in number theory and geometry.
+
+### Three-Circle Common Tangents
+
+A dynamic construction demonstrating the internal and external common tangent lines of three mutually external circles. The construction uses classical tangent geometry and updates in real time as the circle parameters change.
+
+### Apple Logo
+
+A geometric recreation of the Apple logo drawn using ruler-and-compass methods. This type of construction requires decomposing the smooth curves of the logo into circle arcs with precisely defined centers and radii.
+
+### Chinese National Flag
+
+A precise geometric construction of the flag of the People's Republic of China, following the official standard specifications for the positions and sizes of the five stars.
+
+---
+
+## iClock
+
+iClock is an animated mathematical clock built entirely using Desmos Geometry expressions — no programming, only equations. The clock displays the current time through geometric shapes driven by time-parametric functions.
+
+<Note>
+  iClock was selected as a finalist in the **Desmos 2024 Studio Math Art Expo**. The original submission is viewable at [desmos.com/geometry/p4i42jkcp1](https://www.desmos.com/geometry/p4i42jkcp1).
+</Note>
+
+### How It Works
+
+The clock hands are constructed from parametric curves whose angles are computed from the current time values. Each component — hour hand, minute hand, second hand, and face markings — is defined as a geometric object whose position updates as a Desmos ticker advances.
+
+### Design Approach
+
+The design prioritizes mathematical elegance over visual complexity. Each line and arc has a clear functional role. The clock is readable, minimal, and animated entirely through the mathematical properties of the underlying curves.

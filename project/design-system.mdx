@@ -1,0 +1,132 @@
+---
+title: "lailai's Home Design System — Unified, Minimal, Modern"
+description: The design system behind lailai's Home — design tokens, component library, and the three-part philosophy of unified, minimal, and modern visual design.
+---
+
+The design system for lailai's Home is built around three core principles: **unified** (统一), **minimal** (简约), and **modern** (现代). Rather than styling each page independently, all components draw from a shared set of design tokens, ensuring consistent spacing, color, typography, and interaction patterns across the entire site.
+
+## Design Philosophy
+
+### Unified
+
+Every component uses the same design tokens — spacing, color, border radius, shadow, and animation. Consistency takes priority over visual novelty. A new page should feel like it belongs to the same family as every other page.
+
+### Minimal
+
+Unnecessary decoration is removed. Visual hierarchy is expressed through spacing, weight, and tone — not through borders, gradients, or ornamental elements. Each element earns its place by serving the content.
+
+### Modern
+
+The system uses current CSS capabilities: smooth scroll, CSS transitions, and responsive-first layout. Animations are subtle and purposeful. The interface adapts cleanly across viewport sizes.
+
+## Design Tokens
+
+All design variables are defined in `src/theme/design-system/tokens.ts`. The token categories are:
+
+| Category | Description |
+| :------- | :---------- |
+| **Colors** | Brand color, neutral palette, and functional semantic colors |
+| **Spacing** | A 4 px grid — all spacing values are multiples of 4 px |
+| **Typography** | Font families, sizes (scale), and font weights |
+| **Border radius** | A range from tight (small controls) to loose (large cards) |
+| **Shadows** | Layered shadow values for different elevation levels |
+| **Animations** | Shared transition durations and easing functions |
+
+## Style System
+
+Pre-defined style classes are exported from `src/theme/design-system/styles.ts`:
+
+- **Text styles** — Heading variants, body text, muted text, and color utilities
+- **Layout styles** — Container widths, section padding, and grid configuration
+- **Component styles** — Card surface, button variants, and badge appearances
+- **Animation styles** — Hover lift, focus ring, and transition utilities
+
+## Component Library
+
+### Layout Components
+
+| Component | Purpose |
+| :-------- | :------ |
+| `Container` | Constrains content width and applies horizontal padding |
+| `Section` | Adds consistent vertical spacing between page sections |
+| `Grid` | Responsive CSS grid with configurable column counts |
+| `Stack` | Vertical stack layout with controlled gap |
+| `Flex` | Flexible horizontal layout with alignment options |
+
+### Content Components
+
+| Component | Purpose |
+| :-------- | :------ |
+| `Card` | Unified card surface with hover interaction |
+| `Heading` | Consistent heading levels (h1–h4) with controlled size scale |
+| `Text` | Body text with variant support (muted, small, caption) |
+| `Code` | Inline code styling |
+
+### Interactive Components
+
+| Component | Purpose |
+| :-------- | :------ |
+| `Button` | Primary, secondary, and ghost button variants |
+| `Badge` | Status tag for displaying project state or category |
+| `Icon` | Wrapped icon component with size normalization |
+| `IconButton` | Icon-only button with accessible label |
+
+## Usage
+
+Import components from the design system package and compose pages declaratively:
+
+```tsx
+import {
+  Section,
+  Container,
+  Grid,
+  Card,
+  Heading,
+  Text,
+  Button,
+  Badge,
+} from '@site/src/theme/design-system';
+
+// Build a page section
+<Section background="alt">
+  <Container>
+    <Heading level={2}>Projects</Heading>
+    <Grid cols={3}>
+      <Card>
+        <Badge>Active</Badge>
+        <Text>Project description here.</Text>
+      </Card>
+    </Grid>
+  </Container>
+</Section>
+```
+
+## Page Component Patterns
+
+The homepage components follow the design system conventions:
+
+**HeroBanner** — Uses `Section` and `Container` for layout, with unified animation effects and modern button styles.
+
+**Docs** — Card-based layout on a responsive grid with consistent hover effects.
+
+**Project** — Uses `Badge` for project status, uniform card height, and clear information hierarchy.
+
+**Skills** — Clean skill cards on a responsive 6-column grid, with normalized icon sizes and spacing.
+
+**Blog** — Two-column layout with consistent article card treatment and readable date display.
+
+**Quotes** — Elegant quote cards in a responsive 3-column grid with unified author presentation.
+
+## Global Styles
+
+The `src/css/custom.css` file applies site-wide style rules:
+
+- **Smooth scroll** — Enabled for all anchor navigation.
+- **Unified transitions** — All interactive elements use the same animation duration from the token system.
+- **Focus styles** — Keyboard navigation receives a consistent visible focus ring.
+- **Scrollbar styling** — Custom scrollbar appearance to match the overall aesthetic.
+- **Mobile touch targets** — Click areas optimized for touch interaction on small screens.
+
+<Tip>
+  When adding new pages or components, always import from the design system rather than writing one-off styles. This keeps the visual language consistent as the site grows.
+</Tip>

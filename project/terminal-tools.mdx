@@ -1,0 +1,206 @@
+---
+title: "Terminal Tools — C++ Command-Line Projects by lailai"
+description: "C++ terminal projects by lailai: iGame (a Windows console game suite), an image processor for console rendering, and a procedural map generator."
+---
+
+These projects explore what is possible with a plain C++ terminal — no GUI frameworks, no third-party graphics libraries. By combining the Windows API, ANSI escape sequences, and algorithmic techniques, each tool pushes the boundaries of what a command-line interface can render and interact with.
+
+<CardGroup cols={2}>
+  <Card title="iGame" icon="gamepad-2" href="#igame">
+    A C++ terminal game collection started in fifth grade — includes a map explorer, maze mode with smart pathfinding, and Gomoku.
+  </Card>
+  <Card title="Image Processor" icon="image" href="#image-processor">
+    A two-part tool that generates PPM images with custom pixel logic, then renders them at full resolution inside the Windows console using ANSI true color.
+  </Card>
+  <Card title="Map Generator" icon="map" href="#map-generator">
+    A procedural terrain generator inspired by Minecraft — water and lava spread from random seed points and solidify into natural-looking region boundaries.
+  </Card>
+  <Card title="Terminal Tutorial" icon="book-open" href="#terminal-programming">
+    A guide to terminal game programming in C++: the system() API, Windows API utilities (gotoxy, hideCursor, color), key detection, and ANSI true color.
+  </Card>
+</CardGroup>
+
+---
+
+## iGame
+
+iGame is a C++ terminal game collection developed incrementally from fifth grade onward. It began as an experiment in what could be built without any graphics library — only the Windows console API and character output.
+
+The project went through several rewrites and has accumulated a set of playable modes, a custom logging system, a file-based map format, and a smooth frame-paced game loop.
+
+### Game Modes
+
+- **Map explorer** — Navigate a multi-floor tile map. Collect score tokens marked `x`; the tile becomes `X` once collected.
+- **Maze** — A randomly generated maze using a randomized BFS algorithm seeded by a fixed value. Includes AI smart pathfinding that marks a route with `*` tiles.
+- **Gomoku** — A two-player five-in-a-row game on a 19×19 board with three selectable board styles.
+- **Color table** — Displays all 256 terminal color combinations as a reference grid.
+- **Map editor** — A live tile editor for building and modifying map files.
+
+### Architecture
+
+The codebase is organized into namespaces: `Tool`, `Logger`, `Widget`, `Frame`, `Duel`, `Gomoku`, `Home`, and `Begin`. The game loop runs at a target of 120 FPS using `clock()`-based frame timing.
+
+Map data is stored in a plain-text format with sections for `/time`, `/score`, `/size`, `/born`, and `/map`.
+
+### Build
+
+Compile with C++17 and the Winsock library:
+
+```bash
+g++ -std=c++17 -lws2_32 main.cpp -o igame
+```
+
+### Roadmap
+
+Planned features include account login, LAN multiplayer, a settings screen, an end screen, a health bar, and a piano tiles mode.
+
+---
+
+## Image Processor
+
+The image processor consists of two separate programs: a generator that writes PPM image files, and a display tool that reads those files and renders them pixel-by-pixel in the Windows console using ANSI 24-bit true color.
+
+### Image Generator
+
+The generator creates 1024×1024 pixel images and writes them as binary PPM (`P6`) files. Pixel colors are computed by a custom `gen()` function — the default produces a checkerboard pattern alternating between green and blue.
+
+```cpp
+void gen(int id)
+{
+    for(int i = 0; i < N; i++)
+    {
+        for(int j = 0; j < M; j++)
+        {
+            int k = i + j & 1;
+            a[i][j][0] = k ? 0 : 0;
+            a[i][j][1] = k ? 255 : 0;
+            a[i][j][2] = k ? 0 : 255;
+        }
+    }
+}
+```
+
+Output files are named `00000.ppm`, `00001.ppm`, etc. in a `test/` directory.
+
+### Image Display
+
+The display program reads PPM files and renders each pixel as a 2×1 terminal character block with a matching ANSI background color:
+
+```cpp
+void backColor(int r, int g, int b)
+{
+    printf("\033[48;2;%d;%d;%dm", r, g, b);
+}
+```
+
+The console is configured to 2048 columns × 1024 rows at 1 px font size, which maps exactly to the image dimensions.
+
+### Video Synthesis with FFmpeg
+
+Multiple generated frames can be combined into a video:
+
+```bash
+# Install FFmpeg (macOS)
+brew install ffmpeg
+
+# Combine frames at 30 fps
+ffmpeg -framerate 30 -i %05d.ppm -c:v libx264 -r 30 -pix_fmt yuv420p output.mp4
+```
+
+---
+
+## Map Generator
+
+The map generator produces terrain maps using a cellular-automaton-style algorithm inspired by Minecraft's fluid mechanics.
+
+### Algorithm
+
+1. Water (`1`) and lava (`2`) are seeded randomly across a 100×100 grid — roughly one cell per 100 cells for each type.
+2. Each tick, water spreads to adjacent empty cells. Lava spreads at half the speed (every other tick).
+3. When water reaches a cell adjacent to lava, the cell solidifies into a boundary (`3`).
+4. When all cells have stopped changing, the map is complete.
+
+```cpp
+// Core spread logic (simplified)
+bool b = find(i, j, 1), r = find(i, j, 2);
+if(a[i][j] == 0)
+{
+    if(b && r)   a[i][j] = -3; // boundary
+    else if(b)   a[i][j] = -1; // becomes water
+    else if(r && t == 0) a[i][j] = -2; // becomes lava (half speed)
+}
+```
+
+### Rendering
+
+The terminal renders the map using Windows API color codes:
+
+| Value | Tile | Color |
+| :---: | :--- | :---- |
+| `1` | Water | Blue |
+| `2` | Lava | Red |
+| `3` | Boundary | Gray |
+
+Press **Space** to regenerate a new map.
+
+---
+
+## Terminal Programming
+
+### system() Utilities
+
+```cpp
+system("title Game");              // Set window title
+system("mode con cols=60 lines=30"); // Resize window
+system("cls");                     // Clear screen
+system("color XY");                // Set background (X) and foreground (Y) color
+```
+
+### Windows API Utilities
+
+```cpp
+// Move cursor to position (x, y)
+void gotoxy(short x, short y)
+{
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), {x, y});
+}
+
+// Hide the cursor
+void hideCursor()
+{
+    CONSOLE_CURSOR_INFO cursor_info = {1, 0};
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursor_info);
+}
+
+// Set text color (a = background, b = foreground, 0–15)
+void color(short a, short b)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), a << 4 | b);
+}
+```
+
+### ANSI True Color
+
+Enable virtual terminal processing first, then use RGB escape sequences:
+
+```cpp
+void enableVirtualTerminalProcessing()
+{
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hConsole, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hConsole, dwMode);
+}
+
+void foreColor(int r, int g, int b) { printf("\033[38;2;%d;%d;%dm", r, g, b); }
+void backColor(int r, int g, int b) { printf("\033[48;2;%d;%d;%dm", r, g, b); }
+```
+
+### Keyboard Detection
+
+```cpp
+#define KEY_DOWN(VK_NONAME) ((GetAsyncKeyState(VK_NONAME) & 0x8000) ? 1 : 0)
+```
+
+Use with virtual key codes like `VK_ESCAPE`, `VK_SPACE`, `'W'`, `'A'`, `'S'`, `'D'`, `VK_UP`, `VK_DOWN`.

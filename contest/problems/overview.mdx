@@ -1,0 +1,92 @@
+---
+title: "Competitive Programming Problem Sets and Online Judges"
+description: "Compare Luogu, Codeforces, AtCoder, and UVa: difficulty ratings, systematic vs contest practice, verdict meanings, and a structured OI training plan."
+---
+
+Online judges (OJ) are web platforms that accept code submissions, compile them on a server, run them against hidden test data, and return a verdict — Accepted, Wrong Answer, Time Limit Exceeded, etc. — within seconds. They are the primary training ground for competitive programming worldwide, providing immediate feedback that no textbook can replicate. Choosing which judge to practice on, and how to practice, matters as much as which algorithms you study.
+
+## Major Online Judges
+
+<CardGroup cols={2}>
+  <Card title="Luogu (洛谷)" icon="circle-check" href="https://www.luogu.com.cn">
+    China's largest OI platform. Strong problem quality control, structured difficulty from P1xxx (beginner) to P8xxx+ (NOI/IOI level). Excellent for systematic Chinese OI preparation.
+  </Card>
+  <Card title="Codeforces" icon="bolt" href="https://codeforces.com">
+    The most active global competitive programming platform. Frequent rated rounds (Div. 1–4), large problem archive, and Elo-style rating system. Problems rated 800–3500.
+  </Card>
+  <Card title="AtCoder" icon="a" href="https://atcoder.jp">
+    Japanese platform with excellent problem quality and strict time limits. ABC contests are ideal for beginners; ARC and AGC target advanced contestants. Problems are often mathematically elegant.
+  </Card>
+  <Card title="UVa Online Judge" icon="u" href="https://onlinejudge.org">
+    The classic ACM-ICPC problem archive, with thousands of problems spanning decades. Less active for live contests but invaluable for learning specific algorithms with historical problems.
+  </Card>
+  <Card title="DMOJ" icon="d" href="https://dmoj.ca">
+    Canadian contest platform with IOI and CEOI problems. Clean interface, good problem variety, and active community. Good complement to Luogu for non-Chinese OI problems.
+  </Card>
+  <Card title="LibreOJ (LOJ)" icon="l" href="https://loj.ac">
+    High-quality Chinese problem library with strong data and strict judges. Many NOI/CTSC problems. Often used alongside Luogu for more challenging training.
+  </Card>
+</CardGroup>
+
+## How to Practice
+
+### Systematic Practice
+
+Systematic practice means working through a structured curriculum: pick a topic (e.g., segment trees), solve the template problem to verify your implementation, then solve 5–10 additional problems that apply the concept in different ways. This builds deep, transferable understanding.
+
+Recommended workflow:
+1. Study the algorithm concept and its complexity.
+2. Implement the template from scratch (no copy-paste).
+3. Solve the canonical OJ template problem for that topic.
+4. Solve 3–5 harder problems that combine this concept with others.
+5. Review solutions you couldn't solve within a reasonable time limit.
+
+### Random / Contest Practice
+
+Participating in live contests (Codeforces rounds, AtCoder contests, Luogu competitions) develops time management, problem-reading speed, and the ability to work under pressure. Aim to solve all problems you can within the contest, then upsolve the next 1–2 problems you couldn't finish.
+
+<Tip>
+The most effective training combines both: systematic topic study on weekdays, and a live or virtual contest on weekends. Virtual contests (available on Codeforces and Luogu) recreate the contest experience on old problem sets.
+</Tip>
+
+## Difficulty Ratings
+
+Different judges use different scales. Here is a rough correspondence:
+
+| Level | Luogu | Codeforces | AtCoder |
+|---|---|---|---|
+| Beginner | ⚪ (入门) | 800–1000 | ABC A–B |
+| Easy | 🟤 (普及-) | 1100–1400 | ABC C–D |
+| Medium | 🔵 (普及/提高-) | 1500–1900 | ABC E / ARC A–B |
+| Hard | 🟢 (提高+/省选-) | 2000–2400 | ARC C–D / AGC A–B |
+| Expert | 🔴 (NOI/NOI+) | 2500–3000 | AGC C–E |
+| Elite | 🟣 (IOI/ICPC) | 3000+ | AGC F |
+
+<Note>
+Difficulty ratings are subjective and vary by problem style. A Luogu "提高+" problem focused on your weak spot may feel harder than an "NOI" problem in your strongest area. Use ratings as a rough guide, not an absolute measure.
+</Note>
+
+## Verdict Meanings
+
+| Verdict | Meaning |
+|---|---|
+| **AC** — Accepted | All test cases passed. |
+| **WA** — Wrong Answer | Output incorrect on at least one case. |
+| **TLE** — Time Limit Exceeded | Program ran too long. Optimize your algorithm or constants. |
+| **MLE** — Memory Limit Exceeded | Program used more memory than allowed. |
+| **RE** — Runtime Error | Segfault, out-of-bounds access, or uncaught exception. |
+| **CE** — Compilation Error | Code does not compile. Check for syntax errors. |
+| **UKE / Hack** | (Codeforces) Your accepted solution was hacked by another contestant. |
+
+## Building a Practice Plan
+
+A practical schedule for a contestant targeting provincial-level competitions:
+
+1. **Month 1–2**: Basic data structures (array, stack, queue, BIT, segment tree) + basic graph algorithms (BFS, DFS, shortest path, MST).
+2. **Month 3–4**: Dynamic programming (knapsack, interval DP, tree DP) + string algorithms (KMP, Trie).
+3. **Month 5–6**: Advanced structures (balanced BST, persistent trees, LCT) + advanced graph (network flow, bipartite matching).
+4. **Ongoing**: One virtual or live contest per week. Review every problem you couldn't solve.
+
+<Warning>
+Avoid "rating grinding" — repeatedly solving easy problems to boost your rating without learning new material. Progress requires consistently working at the boundary of your current ability.
+</Warning>

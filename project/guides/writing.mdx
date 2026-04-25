@@ -1,0 +1,109 @@
+---
+title: "Writing Guide: Text Formatting and Wording Standards"
+description: Text formatting, punctuation, spacing, wording, and translation conventions for Chinese technical writing used across lailai's documentation and content.
+---
+
+This guide defines the writing conventions used across lailai's documentation, notes, and project pages. It covers text formatting, spacing rules, punctuation, wording preferences, and translation standards. It applies specifically to **Chinese technical text**.
+
+The guide draws from multiple established style references, including Google's developer documentation style guide, Chinese national standards for punctuation and number usage, and community formatting guides from OI Wiki and Luogu.
+
+## Scope and Enforcement Levels
+
+Each rule in this guide carries one of four enforcement levels:
+
+| Level | Meaning |
+| :---- | :------ |
+| **Must** (应) | Mandatory — always apply |
+| **Should** (通常) | Recommended — apply in most cases |
+| **Should Not** (避免) | Discouraged — avoid where possible |
+| **Must Not** (不应) | Prohibited — never use |
+
+## General Principles
+
+- Language style should be **concise**, **natural**, and **professional**.
+- Content written with generative AI assistance must be reviewed by a human before publishing.
+- File encoding must use **UTF-8**.
+- File names follow **kebab-case**: lowercase letters and numbers only, separated by hyphens. Example: `text-format-guide.md`.
+
+## Spacing
+
+- Add a space between **Chinese** and **English or Arabic numerals**.
+- Add a space between **Chinese** and inline formatting such as bold, italics, links, code, and math formulas.
+- Add a space between numbers and their **units** — except for percentages (`%`), degrees (`°`), and abbreviated counts.
+- Do not add spaces before or after **full-width punctuation**.
+- Use the **official capitalization** of proper nouns — for example: `YouTube`, `GitHub`, `iPhone`, `McDonald's`.
+
+## Punctuation
+
+- Use **full-width punctuation** in Chinese text; use **half-width punctuation** in English text.
+- Do not end headings with punctuation.
+- Do not repeat punctuation marks — write `真的吗？` not `真的吗？？！！`.
+- End sentences with a period (`。`), question mark (`？`), exclamation mark (`！`), or ellipsis (`……`).
+- Use the **enumeration comma** (`、`) between three or more parallel items; use `和` or `或` between two items.
+- Do not add an enumeration comma between items already marked with quotation marks or book title marks.
+- In **unordered and task lists**, end each item with a period (`。`).
+- In **ordered lists**, end intermediate items with a semicolon (`；`) and the final item with a period (`。`).
+- Use **corner quotation marks** (`「」` and `『』`) for full-width quotation; use `""` and `''` for half-width. Alternate single and double when nesting.
+- Chinese ellipsis is `……`; English ellipsis is `...`.
+- Use the correct dash type:
+  - Hyphen (`-`, U+002D) — connecting compound words
+  - En dash (`–`, U+2013) — connecting proper nouns, expressing ranges, or as a placeholder
+  - Em dash (`—`, U+2014) — parenthetical breaks within a sentence
+- Use the **middle dot** (`·`) to separate syllables in foreign personal names, not the Japanese middle dot (`・`).
+
+## Sentences and Word Choice
+
+- Sentences should use **active voice** — write `程序会自动保存文件` not `文件会被程序自动保存`.
+- Avoid **double negatives**.
+- Avoid **long sentences** — target fewer than 40 characters per sentence; never exceed 60.
+- Prefer **simple and coordinate sentences** over complex compound sentences.
+- Avoid unnecessary adjectives, particles (`的`, `了`, `着`), and filler words.
+- Avoid internet slang, phonetic substitutions, emoji, and kaomoji.
+- Avoid archaic, invented, or literary Chinese vocabulary.
+
+## Wording Standards
+
+Use the correct form of commonly confused words:
+
+| Use | Instead of |
+| :-- | :--------- |
+| 模板 | 模版 |
+| 登录 | 登陆 |
+| 账号 | 帐号 |
+| 其他 | 其它 |
+| 你 | 您 |
+| 仅 | 只 |
+| 然后 | 接下来 |
+| 包含 | 含有 |
+| 连通 | 联通 |
+| 扩展 | 拓展 |
+| 源代码 | 源码 |
+
+Use `例如` and `示例` for examples. Avoid `显然`, `易得`, and `不难发现` — these phrases assume shared knowledge and can be exclusionary.
+
+Use `「关于」` in headings and `「有关」` in body text.
+
+## Numbers
+
+- Use **Arabic numerals** by default; avoid thousands separators.
+- Use **Chinese numerals** for formal text and idiomatic expressions: `三局两胜`, `十二生肖`.
+- Express increases with `增加了` or `增加到`; express decreases with `降低了` or `降低到`.
+- Format dates following **ISO 8601**: `1969-07-20`.
+- Format currency following **ISO 4217**: `USD 19.99`, `CNY 6599`.
+
+## Translation
+
+- Apply the **信达雅** principle (faithfulness, fluency, elegance).
+- Use authoritative or mainstream translations for contested terms.
+- When a technical term appears for the first time, write it as `中文全称（原文全称，缩写）` — for example: 快速傅里叶变换（Fast Fourier Transform，FFT）.
+- When a foreign name appears for the first time, write it as `中文译名（原文姓名，生卒年）` — for example: 艾萨克·牛顿（Isaac Newton，1643–1727）.
+- Avoid unnecessary English words mixed into Chinese text — write `这个想法很好` not `这个 idea 很好`.
+- Widely recognized abbreviations do not need translation — `USB`, `NBA`, `API` do not require Chinese glosses.
+
+## Special Rules for lailai's Home
+
+- The name **lailai** is always set entirely in lowercase, even at the start of a sentence or in a title.
+- **lailai** is untranslatable — it is always written in English, even within Chinese text.
+- Phrases containing **lailai's** are untranslatable and always written in English with title-case following words — for example: lailai's Home, lailai's Text Format Guide.
+- Unwritten or incomplete content sections should be marked with `[TODO]`.
+- Resources should be hosted on lailai's Cloud.

@@ -1,0 +1,192 @@
+---
+title: "Balanced BST: Treap, PBDS, and C++ Ordered Sets Guide"
+description: "Balanced BST for OI: std::set, GNU PBDS order-statistics tree, Treap with split/merge, Cartesian tree, and a guide for choosing the right structure."
+---
+
+A balanced binary search tree (balanced BST) maintains elements in sorted order while keeping the tree height at O(log n), so insert, delete, and lookup all run in O(log n) worst-case time. In OI the most commonly encountered variants are AVL trees (rare in contests), Red-Black trees (used inside `std::set`), Treaps (randomized, easy to implement), and Splay trees (amortized O(log n), used in Link-Cut Trees). Knowing when to reach for `std::set` vs. a hand-rolled Treap is a key contest skill.
+
+<Tabs>
+  <TabItem value="std::set / std::map">
+
+The C++ standard library provides Red-Black tree implementations via `std::set` and `std::map`. They support O(log n) insert, erase, find, lower_bound, and upper_bound.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+set<int> s;
+s.insert(5);
+s.erase(5);
+auto it  = s.lower_bound(3); // first element >= 3
+auto it2 = s.upper_bound(3); // first element > 3
+
+// Multiset for duplicate values
+multiset<int> ms;
+ms.insert(3);
+ms.erase(ms.find(3)); // erase only one copy
+
+// Map: sorted key-value store
+map<int, int> mp;
+mp[1] = 42;
+for (auto& [k, v] : mp) { /* iterate in sorted key order */ }
+```
+
+<Note>
+To erase a single copy from a `multiset`, always use `ms.erase(ms.find(x))`. Using `ms.erase(x)` removes **all** copies of x.
+</Note>
+
+  </TabItem>
+  <TabItem value="GNU PBDS Order-Statistics Tree">
+
+`__gnu_pbds::tree` from `<bits/extc++.h>` extends the standard Red-Black tree with two extra O(log n) operations:
+- `order_of_key(x)` — number of elements strictly less than x
+- `find_by_order(k)` — iterator to the k-th smallest element (0-indexed)
+
+This is the source's canonical template:
+
+```cpp
+#include <bits/extc++.h>
+using namespace __gnu_pbds;
+
+// Ordered set of pairs: use pair<int,int> to handle duplicates
+tree<pair<int,int>, null_type, less<pair<int,int>>,
+     rb_tree_tag, tree_order_statistics_node_update> T;
+
+// Insert x (with unique tag to avoid collision)
+int tag = 0;
+T.insert({x, tag++});
+
+// Rank of x: number of elements < x
+int rank_of_x = T.order_of_key({x, INT_MIN});
+
+// k-th smallest (0-indexed)
+auto it = T.find_by_order(k);
+```
+
+<Tip>
+Wrap values in `pair<int, int>` with a monotonically increasing second field to handle duplicate keys while preserving full order-statistics functionality.
+</Tip>
+
+  </TabItem>
+  <TabItem value="Treap (Split / Merge)">
+
+A Treap combines BST order on keys with heap order on random priorities. Because priorities are random the tree stays balanced with high probability, giving O(log n) expected time. It uniquely supports **split** and **merge** operations.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+struct Node {
+    int key, pri, siz;
+    int ch[2];
+} t[100005];
+int cnt = 0, root = 0;
+
+int new_node(int key) {
+    t[++cnt] = {key, (int)rng(), 1, {0, 0}};
+    return cnt;
+}
+void push_up(int u) {
+    t[u].siz = t[t[u].ch[0]].siz + t[t[u].ch[1]].siz + 1;
+}
+
+// Split: left tree has keys <= key, right tree has keys > key
+void split(int u, int key, int &l, int &r) {
+    if (!u) { l = r = 0; return; }
+    if (t[u].key <= key) { l = u; split(t[u].ch[1], key, t[u].ch[1], r); }
+    else                 { r = u; split(t[u].ch[0], key, l, t[u].ch[0]); }
+    push_up(u);
+}
+
+// Merge two treaps (all keys in l < all keys in r)
+int merge(int l, int r) {
+    if (!l || !r) return l | r;
+    if (t[l].pri > t[r].pri) { t[l].ch[1] = merge(t[l].ch[1], r); push_up(l); return l; }
+    else                     { t[r].ch[0] = merge(l, t[r].ch[0]); push_up(r); return r; }
+}
+
+void insert(int &root, int key) {
+    int l, r, node = new_node(key);
+    split(root, key - 1, l, r);
+    root = merge(merge(l, node), r);
+}
+
+void erase(int &root, int key) {
+    int l, mid, r;
+    split(root, key - 1, l, r);
+    split(r, key, mid, r);
+    mid = merge(t[mid].ch[0], t[mid].ch[1]);
+    root = merge(merge(l, mid), r);
+}
+
+// k-th smallest element (1-indexed)
+int kth(int u, int k) {
+    while (true) {
+        int lsiz = t[t[u].ch[0]].siz;
+        if      (k <= lsiz)      u = t[u].ch[0];
+        else if (k == lsiz + 1)  return t[u].key;
+        else { k -= lsiz + 1;    u = t[u].ch[1]; }
+    }
+}
+```
+
+  </TabItem>
+  <TabItem value="Cartesian Tree">
+
+A Cartesian tree (笛卡尔树) is a BST on indices with min-heap property on values. It can be built in O(n) using a stack and is the basis for Treap construction. This is the source's template:
+
+```cpp
+// Build a min-Cartesian-tree: BST on index, min-heap on value
+// son[i][0] = left child, son[i][1] = right child
+int top = 0;
+int s[N], son[N][2];
+s[++top] = 0;
+for (int i = 1; i <= n; i++) {
+    while (top && a[s[top]] > a[i]) son[i][0] = s[top--];
+    if (s[top]) son[s[top]][1] = i;
+    s[++top] = i;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Key Operations Summary
+
+| Operation | `std::set` | PBDS tree | Treap |
+|---|---|---|---|
+| Insert | O(log n) | O(log n) | O(log n) expected |
+| Delete | O(log n) | O(log n) | O(log n) expected |
+| Find / lower_bound | O(log n) | O(log n) | O(log n) expected |
+| Rank (order_of_key) | O(n) | **O(log n)** | O(log n) expected |
+| K-th element | O(n) | **O(log n)** | O(log n) expected |
+| Split / merge | Not supported | Not supported | **Supported** |
+
+## When to Use Each
+
+<CardGroup cols={2}>
+  <Card title="std::set / std::map" icon="box">
+    Use for straightforward insertion, deletion, and predecessor/successor queries. No order statistics needed. Simple and fast with no extra dependencies.
+  </Card>
+  <Card title="GNU PBDS tree" icon="layer-group">
+    Use when you need order_of_key or find_by_order in a contest that allows GCC extensions. Much less code than a manual Treap.
+  </Card>
+  <Card title="Treap" icon="shuffle">
+    Use when you need split/merge (e.g., merge two sorted sets, split at a position), or when the problem is a classic OI template problem (P3369).
+  </Card>
+  <Card title="Splay Tree" icon="rotate">
+    Use as the underlying structure for Link-Cut Trees (LCT), or when you need access-frequency-based amortized performance.
+  </Card>
+</CardGroup>
+
+## Practice Problems
+
+- **P3369** — Balanced BST template: all 6 operations (insert, delete, rank, kth, predecessor, successor)
+- **P6136** — Same as P3369 with online queries
+- **P5854** — Treap template (split/merge style)
+
+<Warning>
+In contest environments without GCC extensions (e.g., MSVC, Clang with libstdc++ not available), `__gnu_pbds::tree` is unavailable. Always have a Treap implementation ready as a fallback.
+</Warning>

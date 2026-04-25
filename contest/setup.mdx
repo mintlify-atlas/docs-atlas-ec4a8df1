@@ -1,0 +1,238 @@
+---
+title: "C++ Setup and Environment for Competitive Programming"
+description: "Set up C++ for OI contests: compiler flags, editor recommendations, Hello World, and essential input/output patterns used in competitive programming."
+---
+
+C++ is the dominant language in Chinese OI competitions and is supported by all major judges including Luogu, LibreOJ, and BZOJ. Getting your environment right from the start — choosing a good editor, knowing the right compiler flags, and mastering I/O patterns — eliminates an entire class of avoidable mistakes during contests. This page covers everything you need to go from a fresh machine to a working competitive programming setup.
+
+## Installing the Compiler
+
+The standard compiler for OI is **g++** (the GNU C++ compiler), which is available on all major operating systems.
+
+<CodeGroup>
+```bash Linux (Debian/Ubuntu)
+sudo apt update
+sudo apt install g++ build-essential
+```
+
+```bash macOS (Homebrew)
+brew install gcc
+```
+
+```bash Windows (MSYS2 / MinGW)
+# Install MSYS2 from https://www.msys2.org, then:
+pacman -S mingw-w64-x86_64-gcc
+```
+</CodeGroup>
+
+Verify your installation:
+
+```bash
+g++ --version
+```
+
+## Compiler Flags
+
+The NOI syllabus specifies `g++` as the standard compiler. During contests, judges compile with flags similar to the following:
+
+```bash
+# Standard compilation
+g++ -o solution solution.cpp
+
+# With optimizations and C++17 standard (common in modern OI judges)
+g++ -O2 -std=c++17 -o solution solution.cpp
+
+# Debug build — adds sanitizers to catch UB, out-of-bounds, and overflow
+g++ -O0 -g -fsanitize=address,undefined -std=c++17 -o solution solution.cpp
+```
+
+<Note>
+Always check the specific judge's compilation flags before a contest. Most Chinese OI judges use `-O2 -std=c++14` or `-O2 -std=c++17`. SIMD/AVX instruction set extensions (`-O2 -march=native`) are generally **not** available on judges but can be used for local stress testing.
+</Note>
+
+## Editor Recommendations
+
+| Editor | Notes |
+|--------|-------|
+| **VS Code** | Recommended for most students. Install the C/C++ extension by Microsoft and configure `tasks.json` for one-key compilation. |
+| **CLion** | Full-featured JetBrains IDE with excellent refactoring and debugging. Requires a license (free for students). |
+| **Dev-C++** | Historically popular in Chinese OI; simple and lightweight. Still used in some exam environments. Listed in the NOI syllabus (entry level). |
+| **Code::Blocks** | Also listed in the NOI syllabus for Linux environments. |
+| **Vim / Neovim** | Preferred by experienced competitors for speed. Steep learning curve but very powerful once mastered. |
+
+## Hello, World!
+
+Every OI program begins with the same structural skeleton. The `#include <bits/stdc++.h>` header is a GCC extension that includes the entire standard library — universally used in competitive programming to avoid managing individual includes.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    cout << "Hello, World!" << '\n';
+    return 0;
+}
+```
+
+<Tip>
+Use `'\n'` instead of `endl` to avoid flushing the output buffer on every line, which can cause significant slowdowns on problems with large output.
+</Tip>
+
+## Input / Output Patterns
+
+Choosing the right I/O method is important for performance. In OI, large inputs are common, and a slow I/O method can cause TLE even with a correct algorithm.
+
+### Standard cin / cout (with sync disabled)
+
+This is the recommended default. Disabling sync and untying `cin` from `cout` makes `cin`/`cout` nearly as fast as `scanf`/`printf`.
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int n;
+    cin >> n;
+    for (int i = 0; i < n; i++) {
+        int x;
+        cin >> x;
+        cout << x << '\n';
+    }
+    return 0;
+}
+```
+
+<Warning>
+After calling `ios::sync_with_stdio(false)`, **do not mix** `cin`/`cout` with `scanf`/`printf` in the same program. Mixing them after disabling sync produces undefined behavior and can cause incorrect read/write ordering.
+</Warning>
+
+### scanf / printf
+
+The C-style I/O functions. Slightly more verbose but familiar and reliable without needing sync adjustments.
+
+<CodeGroup>
+```cpp Reading integers with scanf
+#include <cstdio>
+
+int main()
+{
+    int n;
+    scanf("%d", &n);
+    for (int i = 0; i < n; i++) {
+        int x;
+        scanf("%d", &x);
+        printf("%d\n", x);
+    }
+    return 0;
+}
+```
+
+```cpp Reading multiple types
+#include <cstdio>
+
+int main()
+{
+    long long a;
+    double b;
+    char s[200];
+    scanf("%lld %lf %s", &a, &b, s);
+    printf("%lld %.6f %s\n", a, b, s);
+    return 0;
+}
+```
+</CodeGroup>
+
+### Fast I/O Template (getchar-based)
+
+For problems with extremely large input (tens of millions of integers), a custom `getchar`-based reader can be significantly faster than both `cin` and `scanf`.
+
+```cpp
+int read()
+{
+    int x = 0, f = 1;
+    char c = getchar();
+    while (c < '0' || c > '9') { if (c == '-') f = -1; c = getchar(); }
+    while (c >= '0' && c <= '9') x = x * 10 + c - 48, c = getchar();
+    return x * f;
+}
+
+void write(int x)
+{
+    if (x < 0) putchar('-'), x = -x;
+    if (x > 9) write(x / 10);
+    putchar(x % 10 + 48);
+}
+```
+
+For maximum throughput, a buffered I/O namespace using `fread`/`fwrite` can read the entire input in one syscall:
+
+```cpp
+namespace IO
+{
+    #define MAX_SIZE (1 << 16)
+    char buf[MAX_SIZE], pbuf[MAX_SIZE], *p1, *p2, *pp = pbuf;
+    #define gc() (p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, MAX_SIZE, stdin), p1 == p2) ? EOF : *p1++)
+    #define pc(x) (pp == pbuf + MAX_SIZE && (fwrite(pbuf, 1, MAX_SIZE, stdout), pp = pbuf), *pp++ = (x))
+    #define flush() (fwrite(pbuf, 1, pp - pbuf, stdout), pp = pbuf)
+
+    template<typename T>
+    inline T read(T &x) {
+        static char ch; bool f = true; x = 0;
+        while (ch = gc(), (~ch && !isdigit(ch))) f &= (bool)(ch ^ '-');
+        while (isdigit(ch)) x = (x << 1) + (x << 3) + (ch ^ 48), ch = gc();
+        return x = f ? x : -x;
+    }
+}
+```
+
+## Key Data Types
+
+Knowing the range of each type prevents integer overflow — one of the most common sources of WA.
+
+| Type | Size | Max Value |
+|------|------|-----------|
+| `int` | 4 bytes | 2,147,483,647 (~2×10⁹) |
+| `long long` | 8 bytes | 9,223,372,036,854,775,807 (~9×10¹⁸) |
+| `unsigned long long` | 8 bytes | 18,446,744,073,709,551,615 (~1.8×10¹⁹) |
+| `double` | 8 bytes | ~1.8×10³⁰⁸ (15–16 significant digits) |
+
+<Warning>
+When the problem constraints involve values up to 10¹⁸, use `long long`. Intermediate multiplications can overflow `int` silently — always cast to `long long` before multiplying large values.
+</Warning>
+
+## Typical Contest File Structure
+
+Most OI problems use standard input/output. A minimal contest solution looks like:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    // Read input
+    int n;
+    cin >> n;
+
+    // Solve
+
+    // Output
+    cout << n << '\n';
+    return 0;
+}
+```
+
+Some older problems or specific judges require file I/O using `freopen`. If the problem statement specifies input/output files:
+
+```cpp
+freopen("input.txt", "r", stdin);
+freopen("output.txt", "w", stdout);
+```

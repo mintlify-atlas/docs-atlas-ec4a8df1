@@ -1,0 +1,268 @@
+---
+title: "LaTeX Guide — Math Notation for Documentation and Notes"
+description: "A LaTeX math notation reference: inline and display formulas, arithmetic operators, logic symbols, big operators, multi-line environments, and matrices."
+---
+
+LaTeX is a typesetting system widely used for writing documents that contain mathematical formulas. In the browser, [KaTeX](https://katex.org) — a fast JavaScript rendering library — interprets LaTeX syntax and renders it as formatted mathematics. lailai's Home uses KaTeX for all math notation in documentation, notes, and contest solutions.
+
+Recommended tools for writing LaTeX: [Overleaf](https://www.overleaf.com) (collaborative online editor) and [在线 LaTeX 公式编辑器](https://www.latexlive.com) (formula-only editor).
+
+<Note>
+  This guide covers syntax rules only. Formatting and typographic conventions for math in text are covered in the [Writing Guide](/project/guides/writing).
+</Note>
+
+## Formula Types
+
+### Inline Formula
+
+An inline formula is embedded within a line of text. Wrap the expression with single dollar signs:
+
+```latex
+$a^2 + b^2 = c^2$
+```
+
+Renders as: $a^2 + b^2 = c^2$ within the surrounding text.
+
+### Display Formula
+
+A display formula appears on its own line, centered, at a larger size. Wrap with double dollar signs on separate lines:
+
+```latex
+$$
+a^2 + b^2 = c^2
+$$
+```
+
+<Tip>
+  Inline formulas use a compact layout — fractions are smaller, and big-operator limits appear to the side. Use `\displaystyle` inside an inline formula to force the larger display-mode layout.
+</Tip>
+
+## Arithmetic Operators
+
+| Operator | Symbol | Code |
+| :------- | :----: | :--- |
+| Addition | $+$ | `+` |
+| Subtraction | $-$ | `-` |
+| Multiplication | $\times$ | `\times` |
+| Dot product | $\cdot$ | `\cdot` |
+| Division | $\div$ | `\div` |
+| Plus-minus | $\pm$ | `\pm` |
+| Minus-plus | $\mp$ | `\mp` |
+
+## Comparison and Relations
+
+| Operator | Symbol | Code |
+| :------- | :----: | :--- |
+| Equals | $=$ | `=` |
+| Not equal | $\ne$ | `\ne` |
+| Approximately equal | $\approx$ | `\approx` |
+| Greater than | $>$ | `>` |
+| Less than | $<$ | `<` |
+| Greater or equal | $\ge$ | `\ge` |
+| Less or equal | $\le$ | `\le` |
+| Infinity | $\infty$ | `\infty` |
+| Square root | $\sqrt{x}$ | `\sqrt{x}` |
+| nth root | $\sqrt[n]{x}$ | `\sqrt[n]{x}` |
+| Fraction | $\frac{a}{b}$ | `\frac{a}{b}` |
+| Ceiling | $\lceil x \rceil$ | `\lceil x \rceil` |
+| Floor | $\lfloor x \rfloor$ | `\lfloor x \rfloor` |
+
+## Logic Operators
+
+| Operator | Symbol | Code |
+| :------- | :----: | :--- |
+| And | $\land$ | `\land` |
+| Or | $\lor$ | `\lor` |
+| Not | $\lnot$ | `\lnot` |
+| Implies | $\implies$ | `\implies` |
+| Implied by | $\impliedby$ | `\impliedby` |
+| If and only if | $\iff$ | `\iff` |
+| Because | $\because$ | `\because` |
+| Therefore | $\therefore$ | `\therefore` |
+
+## Big Operators
+
+### Summation
+
+```latex
+\sum_{i=1}^{n} a_i
+```
+
+$$
+\sum_{i=1}^{n} a_i
+$$
+
+### Product
+
+```latex
+\prod_{i=1}^{n} a_i
+```
+
+$$
+\prod_{i=1}^{n} a_i
+$$
+
+### Integral
+
+```latex
+\int_{a}^{b} f(x)\,\mathrm{d}x
+```
+
+$$
+\int_{a}^{b} f(x)\,\mathrm{d}x
+$$
+
+### Limit
+
+```latex
+\lim_{x \to \infty} f(x)
+```
+
+$$
+\lim_{x \to \infty} f(x)
+$$
+
+## Multi-line Environments
+
+### Aligned Equations
+
+Use `aligned` for step-by-step derivations with alignment on the `=` sign:
+
+```latex
+\begin{aligned}
+  f(x) &= (a + b)^2 \\
+       &= a^2 + 2ab + b^2
+\end{aligned}
+```
+
+$$
+\begin{aligned}
+  f(x) &= (a + b)^2 \\
+       &= a^2 + 2ab + b^2
+\end{aligned}
+$$
+
+### Piecewise Functions
+
+Use `cases` for piecewise definitions:
+
+```latex
+f(x) =
+\begin{cases}
+  a & x > 0 \\
+  b & x = 0 \\
+  c & x < 0
+\end{cases}
+```
+
+$$
+f(x) =
+\begin{cases}
+  a & x > 0 \\
+  b & x = 0 \\
+  c & x < 0
+\end{cases}
+$$
+
+### Linear Systems
+
+```latex
+\begin{cases}
+  a_1 x + b_1 y = c_1 \\
+  a_2 x + b_2 y = c_2
+\end{cases}
+```
+
+$$
+\begin{cases}
+  a_1 x + b_1 y = c_1 \\
+  a_2 x + b_2 y = c_2
+\end{cases}
+$$
+
+### Arrays
+
+Use `array` for general multi-line blocks. Set alignment per column with `l` (left), `c` (center), or `r` (right):
+
+```latex
+\begin{array}{l}
+  \cos^2\alpha + \sin^2\alpha = 1 \\
+  \sin 2\alpha = 2\sin\alpha\cos\alpha
+\end{array}
+```
+
+### Matrices
+
+```latex
+\begin{bmatrix}
+  1 & 0 & \dots & 0 \\
+  0 & 1 & \dots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \dots & 1
+\end{bmatrix}
+```
+
+$$
+\begin{bmatrix}
+  1 & 0 & \dots & 0 \\
+  0 & 1 & \dots & 0 \\
+  \vdots & \vdots & \ddots & \vdots \\
+  0 & 0 & \dots & 1
+\end{bmatrix}
+$$
+
+## Advanced Features
+
+### Boxed Equations
+
+```latex
+\boxed{x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
+```
+
+$$
+\boxed{x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}}
+$$
+
+### Font Variants
+
+| Usage | Code | Example |
+| :---- | :--- | :------ |
+| Roman (upright) | `\mathrm{...}` | $g \approx 9.8\,\mathrm{m/s^2}$ |
+| Blackboard bold | `\mathbb{...}` | $x \in \mathbb{R}$ |
+| Custom operator | `\operatorname{...}` | $\operatorname{lca}(u, v)$ |
+
+### Colors
+
+```latex
+{\color{white}\colorbox{red}{FBI WARNING}}
+```
+
+$$
+{\color{white}\colorbox{red}{FBI WARNING}}
+$$
+
+### Equation Numbers
+
+```latex
+\tag{1} (a + b)^2 = a^2 + 2ab + b^2
+```
+
+$$
+\tag{1} (a + b)^2 = a^2 + 2ab + b^2
+$$
+
+## Style Conventions
+
+The following rules apply to math in lailai's documentation:
+
+- Use `\times` or `\cdot` for multiplication — not `*`.
+- Use `\frac` for fractions — not `\dfrac`.
+- Use `\dots` for horizontal ellipsis — not `\cdots` or `\ldots`.
+- Use `\vdots` for vertical ellipsis and `\ddots` for diagonal ellipsis.
+- Use `\operatorname{...}` for custom function names: `\operatorname{lca}`, `\operatorname{gcd}`.
+- Use `\mathrm{...}` for physical units: $\mathrm{m/s^2}$, $\mathrm{km}$.
+- Use `\mathbb{...}` for number sets: $\mathbb{R}$, $\mathbb{Z}$, $\mathbb{N}$.
+- Use `\varnothing` for the empty set — not `\emptyset`.
+- Use `\left(` and `\right)` to auto-size brackets around tall expressions.
+- Place display formula delimiters (`$$`) on their own lines.
+- Do not embed formulas inside headings, bold text, italics, or links.

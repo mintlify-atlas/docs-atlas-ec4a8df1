@@ -1,0 +1,260 @@
+---
+title: "Binary Search: Arrays, Answers, and Predicates"
+description: "From std::lower_bound to binary search on the answer — learn the monotonic predicate, avoid off-by-one errors, and solve classic contest problems."
+---
+
+Binary search is one of the most powerful and widely misused techniques in competitive programming. Beyond searching sorted arrays, the technique generalizes to any problem where the answer is monotonic: if some value $x$ is "feasible," then all values on one side of $x$ are also feasible. Recognizing this monotonic structure and applying the correct loop invariant are the skills that separate clean solutions from buggy implementations.
+
+## The core idea
+
+Binary search finds the boundary between two regions in a search space. Define a predicate $\text{check}(x)$ that returns `false` for small values and `true` for large values (or vice versa). The search space looks like:
+
+$$\underbrace{0, 0, \dots, 0}_{\text{false region}}, \underbrace{1, 1, \dots, 1}_{\text{true region}}$$
+
+Binary search locates the **first** position where `check` returns `true` in $O(\log n)$ evaluations, regardless of the search space size.
+
+## The canonical template
+
+This template finds the smallest integer $x$ in $[l, r]$ where `check(x)` is `true`. After the loop, $l$ holds that position.
+
+```cpp binary-search-int.cpp
+// Finds the first position where check(mid) == true.
+// Precondition: check(r+1) must be true (sentinel or valid upper bound).
+// After the loop: l = first true position, l-1 = last false position.
+int lo = x, hi = y + 1;  // half-open: answer is in [lo, hi)
+while (lo < hi) {
+    int mid = lo + (hi - lo) / 2;  // avoids overflow vs. (lo+hi)/2
+    if (check(mid)) hi = mid;
+    else             lo = mid + 1;
+}
+// lo == hi == answer
+```
+
+<Warning>
+Writing `mid = (lo + hi) / 2` causes integer overflow when `lo + hi` exceeds `INT_MAX` (possible for large search spaces). Always use `lo + (hi - lo) / 2` or cast to `long long`.
+</Warning>
+
+<Note>
+The loop invariant is: `check` is `false` for everything strictly below `lo` and `true` for everything at or above `hi`. When `lo == hi`, both pointers meet at the first true position.
+</Note>
+
+## Searching a sorted array
+
+For searching in a sorted array, the C++ standard library provides `std::lower_bound` and `std::upper_bound`:
+
+```cpp stl-binary-search.cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    vector<int> a = {1, 3, 3, 5, 7, 7, 9};
+
+    // lower_bound: first element >= target
+    auto it1 = lower_bound(a.begin(), a.end(), 3);
+    cout << "First >= 3: index " << (it1 - a.begin()) << '\n'; // 1
+
+    // upper_bound: first element > target
+    auto it2 = upper_bound(a.begin(), a.end(), 3);
+    cout << "First > 3: index " << (it2 - a.begin()) << '\n';  // 3
+
+    // Count occurrences of 3: [lower_bound, upper_bound)
+    cout << "Count of 3: " << (it2 - it1) << '\n'; // 2
+
+    // Check if value exists
+    int target = 5;
+    auto it3 = lower_bound(a.begin(), a.end(), target);
+    if (it3 != a.end() && *it3 == target)
+        cout << target << " exists at index " << (it3 - a.begin()) << '\n';
+
+    return 0;
+}
+```
+
+| Function | Returns | Use for |
+|---|---|---|
+| `lower_bound(b, e, v)` | First iterator where `*it >= v` | Finding first occurrence, insertion point |
+| `upper_bound(b, e, v)` | First iterator where `*it > v` | Finding past-last occurrence |
+| `upper_bound - lower_bound` | Count of elements equal to `v` | Frequency queries |
+
+## Floating-point binary search
+
+For real-valued search spaces, iterate until the interval is smaller than a precision threshold $\varepsilon$:
+
+```cpp binary-search-real.cpp
+// Finds x in [lo, hi] where check(x) transitions from false to true.
+double lo = x, hi = y;
+const double eps = 1e-9;
+while (hi - lo > eps) {
+    double mid = (lo + hi) / 2.0;
+    if (check(mid)) hi = mid;
+    else             lo = mid;
+}
+// lo ≈ hi ≈ answer
+```
+
+<Tip>
+For problems that ask for a result rounded to a fixed number of decimal places (e.g., 6 decimal places), use $\varepsilon = 10^{-8}$ or iterate a fixed number of times (e.g., 100 iterations) to avoid precision issues near the boundary.
+</Tip>
+
+## Binary search on the answer
+
+The most powerful application of binary search is on the **answer** itself. Instead of searching an array, you search the range of possible answers $[ans_{\min}, ans_{\max}]$, and for each candidate answer $x$ you check feasibility.
+
+**Template**:
+1. Identify that the answer is monotonic: if $x$ is feasible, then all values $\geq x$ (or $\leq x$) are also feasible.
+2. Write a `check(x)` function that verifies feasibility in $O(f(n))$.
+3. Binary search over $[ans_{\min}, ans_{\max}]$ gives an overall $O(f(n) \log(\text{range}))$ solution.
+
+### Example: minimize the maximum load
+
+Given $n$ tasks with sizes $a_i$ and $k$ workers, assign every task to some worker to minimize the maximum total load any worker receives.
+
+```cpp binary-search-on-answer.cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n, k;
+vector<long long> a;
+
+// Can we distribute tasks so no worker's load exceeds 'limit'?
+bool check(long long limit) {
+    int workers = 1;
+    long long current = 0;
+    for (int i = 0; i < n; i++) {
+        if (a[i] > limit) return false; // single task exceeds limit
+        if (current + a[i] > limit) {
+            workers++;
+            current = a[i];
+            if (workers > k) return false;
+        } else {
+            current += a[i];
+        }
+    }
+    return true;
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    cin >> n >> k;
+    a.resize(n);
+    long long total = 0;
+    for (auto& x : a) { cin >> x; total += x; }
+
+    // Answer is in [max(a), sum(a)]
+    long long lo = *max_element(a.begin(), a.end());
+    long long hi = total + 1; // sentinel: check(hi) is always true
+    while (lo < hi) {
+        long long mid = lo + (hi - lo) / 2;
+        if (check(mid)) hi = mid;
+        else             lo = mid + 1;
+    }
+    cout << lo << '\n';
+    return 0;
+}
+```
+
+### Example: k-th smallest in a sorted matrix
+
+Find the $k$-th smallest element in an $n \times n$ matrix where rows and columns are sorted. Binary search on the value: for a candidate $x$, count how many matrix elements are $\leq x$ in $O(n)$.
+
+```cpp kth-smallest-matrix.cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int n;
+vector<vector<int>> mat;
+
+// Count elements <= x
+long long count_le(int x) {
+    long long cnt = 0;
+    int col = n - 1;
+    for (int row = 0; row < n; row++) {
+        while (col >= 0 && mat[row][col] > x) col--;
+        cnt += col + 1;
+    }
+    return cnt;
+}
+
+int kthSmallest(vector<vector<int>>& matrix, int k) {
+    n = matrix.size();
+    mat = matrix;
+    int lo = mat[0][0], hi = mat[n-1][n-1] + 1;
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (count_le(mid) >= k) hi = mid;
+        else lo = mid + 1;
+    }
+    return lo;
+}
+```
+
+## Ternary search
+
+For **unimodal** functions (single peak or valley) on a continuous domain, ternary search finds the extremum in $O(\log n)$ evaluations by splitting the interval into thirds:
+
+```cpp ternary-search.cpp
+// Finds maximum of a unimodal function f on [lo, hi].
+double lo = x, hi = y;
+const double eps = 1e-9;
+while (hi - lo > eps) {
+    double m1 = lo + (hi - lo) / 3.0;
+    double m2 = hi - (hi - lo) / 3.0;
+    if (f(m1) < f(m2)) lo = m1;  // maximum is in [m1, hi]
+    else                hi = m2; // maximum is in [lo, m2]
+}
+// (lo + hi) / 2 ≈ position of maximum
+```
+
+<Note>
+For **integers**, ternary search reduces the interval by only 1 per iteration in the worst case near the peak. Prefer binary searching on the discrete derivative ($f(x+1) > f(x)$) for integer unimodal functions.
+</Note>
+
+## Common pitfalls
+
+<Warning>
+**Off-by-one errors** are the most common bug in binary search. Always verify:
+- Is your initial `hi` a valid sentinel (one past the last possible answer)?
+- Does the loop shrink the interval every iteration? If `check(mid)` is `false` and you set `lo = mid` (not `mid + 1`), the loop may never terminate when `lo + 1 == hi`.
+- Does the loop terminate when `lo == hi`, not when `lo < hi - 1`?
+</Warning>
+
+Key rules for the integer template `lo + (hi - lo) / 2`:
+- When `check(mid)` is `true`: set `hi = mid` (mid might be the answer)
+- When `check(mid)` is `false`: set `lo = mid + 1` (mid is definitely not the answer)
+- Initial `hi = upper_bound + 1`: guarantees `check(hi)` is always `true` (sentinel)
+
+## Checklist before submitting
+
+<Steps>
+  <Step title="Is the predicate monotonic?">
+    Verify that once `check(x)` becomes `true`, it stays `true` for all larger (or smaller) values. If not, binary search is inapplicable.
+  </Step>
+  <Step title="Are overflow risks handled?">
+    Use `long long` for search bounds and inside `check` when values can exceed $2 \times 10^9$.
+  </Step>
+  <Step title="Is the sentinel correct?">
+    Ensure `check(hi_initial)` is always `true` (for finding first true) or always `false` (for finding last false). Without a correct sentinel, the loop may return an out-of-range answer.
+  </Step>
+  <Step title="Does the interval always shrink?">
+    Trace through `lo = mid + 1` vs `hi = mid` on a two-element interval to confirm the loop terminates.
+  </Step>
+</Steps>
+
+## Related topics
+
+<CardGroup cols={2}>
+  <Card title="Complexity analysis" href="/contest/basics/complexity">
+    Why binary search achieves O(log n) — and how to analyze recursive search.
+  </Card>
+  <Card title="Sorting" href="/contest/basics/sorting">
+    Sorting is a prerequisite for std::lower_bound and std::upper_bound.
+  </Card>
+  <Card title="Prefix sums" href="/contest/basics/prefix-sum">
+    Combine prefix sums with binary search for range queries on sorted data.
+  </Card>
+</CardGroup>

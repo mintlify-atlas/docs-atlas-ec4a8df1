@@ -1,0 +1,148 @@
+---
+title: "Mathematics for Competitive Programming: A Complete Guide"
+description: "Overview of math topics for OI — number theory, binary exponentiation, modular inverse, combinatorics, FFT/NTT, and game theory with C++ templates."
+---
+
+Mathematics underpins a large fraction of competitive programming problems. Topics range from elementary number theory (GCD, primes, modular arithmetic) to combinatorics, polynomial operations, and combinatorial game theory. Fluency with these tools — and the ability to implement them quickly and correctly — is essential for high-level contest performance.
+
+<CardGroup cols={2}>
+  <Card title="Number theory" icon="hashtag">
+    GCD, extended Euclidean algorithm, prime testing, sieve of Eratosthenes, modular arithmetic, and the Chinese Remainder Theorem.
+  </Card>
+  <Card title="Binary exponentiation" icon="bolt">
+    Computes aⁿ mod p in O(log n) by repeated squaring. The building block for modular inverse, matrix exponentiation, and more.
+  </Card>
+  <Card title="Modular inverse" icon="divide">
+    Compute a⁻¹ mod p via Fermat's little theorem (when p is prime) or the extended Euclidean algorithm (general case).
+  </Card>
+  <Card title="Combinatorics" icon="table-cells">
+    Permutations, combinations, Pascal's triangle, Lucas' theorem for large n mod prime, and Catalan numbers.
+  </Card>
+  <Card title="Polynomials and FFT/NTT" icon="wave-sine">
+    Fast Fourier Transform (FFT) and Number Theoretic Transform (NTT) for O(n log n) polynomial multiplication and convolution.
+  </Card>
+  <Card title="Game theory" icon="chess">
+    Nim, Sprague-Grundy theorem, and computing Grundy values (nimbers) for impartial combinatorial games.
+  </Card>
+</CardGroup>
+
+## Number theory essentials
+
+### GCD and extended GCD
+
+The Euclidean algorithm computes gcd(a, b) in O(log min(a, b)) using the identity gcd(a, b) = gcd(b, a mod b). The extended version finds integers x, y such that ax + by = gcd(a, b), which is the basis for modular inverse and solving linear congruences.
+
+```cpp GCD (recursive)
+ll gcd(ll a, ll b) {
+    return !b ? a : gcd(b, a % b);
+}
+```
+
+### Prime sieve
+
+The **Sieve of Eratosthenes** finds all primes up to N in O(N log log N). The **Euler (linear) sieve** runs in O(N) and simultaneously computes multiplicative functions like Euler's totient φ and the Möbius function μ.
+
+```cpp Euler linear sieve
+const int N = 10000005;
+bool vis[N];
+int pri[N];
+
+void sieve() {
+    vis[0] = vis[1] = 1;
+    int cnt = 0;
+    for (int i = 2; i < N; i++) {
+        if (!vis[i]) pri[++cnt] = i;
+        for (int j = 1; j <= cnt; j++) {
+            if ((ll)i * pri[j] >= N) break;
+            vis[i * pri[j]] = 1;
+            if (i % pri[j] == 0) break;
+        }
+    }
+}
+```
+
+## Binary exponentiation
+
+Binary exponentiation (fast power) computes `x^y mod p` in O(log y) by writing y in binary and squaring at each step. It is one of the most frequently used primitives in contest math.
+
+```cpp Modular exponentiation
+using ll = long long;
+
+ll Pow(ll x, ll y, ll mod) {
+    x %= mod;
+    ll res = 1;
+    while (y) {
+        if (y & 1) res = res * x % mod;
+        x = x * x % mod;
+        y >>= 1;
+    }
+    return res;
+}
+```
+
+<Note>
+  Matrix exponentiation uses the same repeated-squaring idea but operates on matrices instead of integers. It reduces linear recurrences (like Fibonacci) to O(k³ log n) where k is the matrix size.
+</Note>
+
+## Modular inverse
+
+When working modulo a prime p, you often need to compute a/b mod p as a · b⁻¹ mod p. By Fermat's little theorem, b^(p-1) ≡ 1 (mod p), so b⁻¹ ≡ b^(p-2) (mod p).
+
+```cpp Modular inverse via Fermat's little theorem
+ll inv(ll a, ll mod) {
+    return Pow(a, mod - 2, mod);
+}
+```
+
+For computing inverses of all integers 1..n at once (e.g., for precomputing factorials and their inverses), the linear recurrence is more efficient:
+
+```cpp Linear precomputation of modular inverses
+const ll mod = 1e9 + 7;
+ll inv_arr[N];
+
+void init_inv(int n) {
+    inv_arr[1] = 1;
+    for (int i = 2; i <= n; i++)
+        inv_arr[i] = (mod - mod / i) * inv_arr[mod % i] % mod;
+}
+```
+
+## Combinatorics
+
+Combinations C(n, k) = n! / (k! · (n-k)!) are computed modulo a prime by precomputing factorials and their inverses:
+
+```cpp Combinations mod prime — precompute factorials
+const int N = 200005;
+const ll mod = 1e9 + 7;
+ll fac[N], inv_fac[N];
+
+void init(int n) {
+    fac[0] = 1;
+    for (int i = 1; i <= n; i++) fac[i] = fac[i - 1] * i % mod;
+    inv_fac[n] = Pow(fac[n], mod - 2, mod);
+    for (int i = n - 1; i >= 0; i--) inv_fac[i] = inv_fac[i + 1] * (i + 1) % mod;
+}
+
+ll C(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    return fac[n] % mod * inv_fac[k] % mod * inv_fac[n - k] % mod;
+}
+```
+
+<Tip>
+  **Lucas' theorem** extends modular combinations to cases where n can be very large (up to 10^18) by reducing C(n, k) mod p to a product of smaller binomials using base-p representations.
+</Tip>
+
+## Polynomial multiplication: FFT and NTT
+
+Naive polynomial multiplication is O(n²). The **Fast Fourier Transform (FFT)** reduces this to O(n log n) by working in the frequency domain. For exact integer arithmetic modulo a prime, the **Number Theoretic Transform (NTT)** is preferred — it uses a primitive root of a suitable NTT-friendly prime (such as 998244353 = 119 · 2²³ + 1) and avoids floating-point error entirely.
+
+<Warning>
+  FFT uses floating-point arithmetic and can suffer precision errors for large coefficients. Prefer NTT when the modulus allows it, or use long double / split methods when it does not.
+</Warning>
+
+## Game theory: Nim and Sprague-Grundy
+
+In **Nim**, players take turns removing stones from piles; the player who cannot move loses. The key theorem: the current player loses if and only if the XOR of all pile sizes is 0.
+
+The **Sprague-Grundy theorem** generalizes this: every impartial game position has a Grundy value (nimber), defined as the minimum excludant (mex) of the Grundy values of positions reachable in one move. A sum of games is a loss for the current player iff the XOR of all Grundy values is 0. This lets you analyze composite games by computing each component independently.

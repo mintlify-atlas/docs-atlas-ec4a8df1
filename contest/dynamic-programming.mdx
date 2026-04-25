@@ -1,0 +1,104 @@
+---
+title: "Dynamic Programming: Concepts, Types, and Patterns"
+description: "Overview of dynamic programming for OI — memoization, tabulation, knapsack, interval DP, tree DP, state compression, and monotone queue optimization."
+---
+
+Dynamic programming (DP) solves problems by breaking them into overlapping subproblems and reusing previously computed results. It applies whenever a problem has **optimal substructure** (the optimal solution to the whole is built from optimal solutions to subproblems) and **overlapping subproblems** (the same subproblem is solved multiple times). Recognizing these two properties is the first step to any DP solution.
+
+<CardGroup cols={2}>
+  <Card title="DP fundamentals" icon="book">
+    Core concepts including memoization, tabulation, state design, and classic examples like longest increasing subsequence (LIS).
+  </Card>
+  <Card title="Knapsack DP" icon="bag-shopping">
+    The canonical DP family: 0-1 knapsack, unbounded (complete) knapsack, bounded (multiple) knapsack with binary grouping optimization.
+  </Card>
+  <Card title="Interval DP" icon="brackets-curly">
+    DP over intervals [l, r] where solutions to larger intervals depend on smaller ones. Classic example: matrix chain multiplication.
+  </Card>
+  <Card title="Tree DP" icon="sitemap">
+    DP defined on rooted trees, where state transitions flow from parent to child or are merged over subtrees.
+  </Card>
+  <Card title="State compression DP" icon="microchip">
+    DP with bitmask states to represent subsets. Typical in problems involving small sets of items (n ≤ 20), such as TSP variants.
+  </Card>
+  <Card title="Monotone queue optimization" icon="arrow-trend-up">
+    Sliding-window minimum/maximum tricks that reduce O(n²) DP transitions to O(n) for convex-hull and deque-based optimizations.
+  </Card>
+</CardGroup>
+
+## Memoization vs tabulation
+
+There are two equivalent implementations of DP:
+
+- **Top-down (memoization)**: write a recursive function that stores results in a cache. Natural to code when the recursion structure is clear.
+- **Bottom-up (tabulation)**: fill a DP table iteratively in dependency order. Usually faster in practice due to lower overhead and better cache locality.
+
+<Note>
+  For most contest problems, bottom-up tabulation is preferred. Top-down is useful when not all subproblems need to be computed (sparse DP).
+</Note>
+
+## 0-1 knapsack
+
+The 0-1 knapsack is the canonical DP problem: given `n` items each with weight `w[i]` and value `v[i]`, and a capacity `m`, maximize total value without exceeding capacity. Each item can be used at most once.
+
+The recurrence is:
+
+$$
+f_j = \max(f_j,\; f_{j - w_i} + v_i)
+$$
+
+Iterating `j` from `m` down to `w[i]` ensures each item is counted at most once (1D rolling array).
+
+```cpp 0-1 knapsack
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll = long long;
+const int N = 1005;
+const int M = 10005;
+int w[N], v[N], f[M];
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int n, m;
+    cin >> n >> m;
+    for (int i = 1; i <= n; i++) cin >> w[i] >> v[i];
+    for (int i = 1; i <= n; i++) {
+        for (int j = m; j >= w[i]; j--) {
+            f[j] = max(f[j], f[j - w[i]] + v[i]);
+        }
+    }
+    cout << f[m] << '\n';
+}
+```
+
+<Tip>
+  For the **complete (unbounded) knapsack** — where each item type can be used any number of times — iterate `j` from `w[i]` upward instead of downward. This allows the current item to be counted multiple times.
+</Tip>
+
+## Longest increasing subsequence
+
+LIS finds the longest strictly increasing subsequence of an array. The O(n²) DP is `f[i] = max(f[j] + 1)` for all `j < i` with `a[j] < a[i]`. This can be improved to O(n log n) using binary search on a patience-sorting auxiliary array.
+
+```cpp LIS — O(n log n) with binary search
+for (int i = 1; i <= n; i++) {
+    int k = lower_bound(b + 1, b + n + 1, a[i]) - b;
+    b[k] = a[i];
+    ans = max(ans, k);
+}
+```
+
+## Common DP types at a glance
+
+| Type | State dimension | Typical complexity | Example problem |
+|---|---|---|---|
+| Linear DP | 1D index | O(n) – O(n²) | LIS, coin change |
+| Knapsack DP | capacity | O(nm) | 0-1 / complete knapsack |
+| Interval DP | [l, r] | O(n³) | Matrix chain, burst balloons |
+| Tree DP | node, subtree | O(n) | Subtree weights, diameter |
+| State compression DP | bitmask | O(2ⁿ · n) | Hamiltonian path, TSP |
+
+<Warning>
+  State compression DP is only practical for n ≤ 20 or so, since the state space grows as 2ⁿ. For n > 25, look for a different approach.
+</Warning>

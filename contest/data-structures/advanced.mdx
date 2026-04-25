@@ -1,0 +1,229 @@
+---
+title: "Advanced Data Structures: DSU, Sparse Table, and LCT"
+description: "NOI-level C++ data structures: DSU path compression, O(1) Sparse Table RMQ, persistent segment trees, K-D tree basics, and a Link-Cut Tree overview."
+---
+
+Beyond the standard segment tree and BIT, a handful of more specialized data structures appear repeatedly at the NOI / ICPC level. This page surveys the most important ones, with C++ implementations drawn from the source templates. Mastering these structures — and recognizing which one a problem calls for — is a significant step toward solving harder problems.
+
+<CardGroup cols={2}>
+  <Card title="Disjoint Set Union" icon="circle-nodes">
+    O(α(n)) per operation. Connects components and answers connectivity queries. The go-to structure for Kruskal's MST and offline LCT.
+  </Card>
+  <Card title="Sparse Table" icon="table">
+    O(n log n) build, O(1) query. Answers static range minimum/maximum queries with no updates. Fastest possible RMQ.
+  </Card>
+  <Card title="Persistent Segment Tree" icon="clock-rotate-left">
+    O(log n) per version. Preserves all historical versions of a segment tree by copying only the O(log n) nodes on the modified path.
+  </Card>
+  <Card title="Link-Cut Tree" icon="link">
+    O(log n) amortized. Maintains a dynamic forest under link/cut operations and answers path queries. Based on Splay trees.
+  </Card>
+</CardGroup>
+
+---
+
+## Disjoint Set Union (DSU / Union-Find)
+
+DSU tracks which elements belong to the same connected component. With **path compression** and **union by rank**, both `find` and `merge` run in O(α(n)) amortized — effectively O(1) for all practical n. This is the source's canonical implementation:
+
+```cpp
+const int N = 100005;
+
+struct DSU {
+    int fa[N];
+    void init(int n) {
+        for (int i = 1; i <= n; i++) fa[i] = i;
+    }
+    // Path compression: flatten the tree on every find
+    int find(int u) {
+        return u == fa[u] ? u : fa[u] = find(fa[u]);
+    }
+    // Union by representative (merge v's root into u's root)
+    void merge(int u, int v) {
+        fa[find(u)] = find(v);
+    }
+    bool query(int u, int v) {
+        return find(u) == find(v);
+    }
+} dsu;
+```
+
+<Tip>
+For problems requiring rollback (e.g., offline divide-and-conquer), use union by rank **without** path compression, so `merge` can be undone by restoring the old root.
+</Tip>
+
+### Weighted DSU
+
+Store an extra value `w[u]` representing the "weight" of `u` relative to its parent. Path compression updates weights along the path.
+
+```cpp
+struct WeightedDSU {
+    int fa[N];
+    long long w[N]; // w[u] = weight of u relative to fa[u]
+    void init(int n) {
+        for (int i = 1; i <= n; i++) { fa[i] = i; w[i] = 0; }
+    }
+    pair<int, long long> find(int u) {
+        if (u == fa[u]) return {u, 0};
+        auto [root, pw] = find(fa[u]);
+        w[u] += pw;
+        fa[u] = root;
+        return {root, w[u]};
+    }
+};
+```
+
+---
+
+## Sparse Table (ST Table) for O(1) RMQ
+
+A Sparse Table answers **static** range minimum (or maximum) queries in O(1) after O(n log n) preprocessing. It exploits the idempotence of min/max: overlapping intervals can be combined without double-counting.
+
+`st[i][j]` stores the minimum of the subarray starting at index j with length 2^i. The query uses two overlapping windows of the same power-of-two length to cover [l, r].
+
+This is the source's ST template:
+
+```cpp
+const int N = 100005;
+
+struct ST {
+    int a[30][N]; // a[i][j] = min of [j, j + 2^i - 1]
+    void init(int n, int raw[]) {
+        for (int j = 1; j <= n; j++) a[0][j] = raw[j];
+        for (int i = 1; i <= __lg(n); i++)
+            for (int j = 1; j <= n - (1 << i) + 1; j++)
+                a[i][j] = max(a[i-1][j], a[i-1][j + (1 << (i-1))]);
+    }
+    int query(int l, int r) {
+        int k = __lg(r - l + 1);
+        return max(a[k][l], a[k][r - (1 << k) + 1]);
+    }
+} st;
+```
+
+<Note>
+Sparse Table only works for **idempotent** operations (min, max, GCD, bitwise AND/OR). For sum queries, use a BIT or prefix array instead — overlapping intervals would double-count.
+</Note>
+
+---
+
+## Persistent Segment Tree (Chairman Tree)
+
+A persistent segment tree keeps all historical versions of a segment tree by sharing unchanged subtrees between versions. Each update creates at most O(log n) new nodes, so n updates use O(n log n) space total.
+
+The classic application is offline static range k-th smallest: build a version of a frequency segment tree for each prefix of the array, then answer [l, r] k-th queries by subtracting version l-1 from version r.
+
+Full implementation from the source:
+
+```cpp
+#include <bits/stdc++.h>
+#define mid (l + r >> 1)
+using namespace std;
+
+const int N = 1000005;
+
+struct Node {
+    int ls, rs, val;
+} G[N * 25];
+
+int a[N], root[N], cnt = 0;
+
+void build(int &u, int l, int r) {
+    u = ++cnt;
+    if (l == r) { G[u].val = a[l]; return; }
+    build(G[u].ls, l, mid);
+    build(G[u].rs, mid + 1, r);
+}
+
+// Create a new version by modifying position x to value v
+void update(int &u, int o, int l, int r, int x, int v) {
+    u = ++cnt;
+    G[u] = G[o]; // copy old node
+    if (l == r) { G[u].val = v; return; }
+    if (x <= mid) update(G[u].ls, G[o].ls, l, mid, x, v);
+    else          update(G[u].rs, G[o].rs, mid+1, r, x, v);
+}
+
+int query(int u, int l, int r, int x) {
+    if (l == r) return G[u].val;
+    if (x <= mid) return query(G[u].ls, l, mid, x);
+    else          return query(G[u].rs, mid+1, r, x);
+}
+```
+
+Usage:
+```cpp
+// Build version 0
+build(root[0], 1, n);
+
+// Create version i from version v with point update
+update(root[i], root[v], 1, n, x, new_val);
+
+// Query position x in version v
+int val = query(root[v], 1, n, x);
+```
+
+<Warning>
+Allocate the node array with `N * 25` or more. Each of the n operations creates O(log n) ≈ 20 new nodes, so the total node count is roughly 20n.
+</Warning>
+
+---
+
+## K-D Tree Basics
+
+A K-D tree (k-dimensional tree) partitions k-dimensional space by alternating split axes. In 2D competitive programming problems, it handles nearest-neighbor queries and rectangle queries on point sets. Build by choosing a split dimension and median point at each level.
+
+```cpp
+struct KDNode {
+    int x, y;          // point coordinates
+    int lx, rx, ly, ry; // bounding box
+    int l, r;           // child indices
+    long long val, tag;
+};
+
+// After sorting points by x (or y alternately), split at median
+// Typical build: O(n log n), query: O(sqrt(n)) expected
+```
+
+<Note>
+K-D trees have O(sqrt(n)) expected query time in 2D, which is acceptable for n ≤ 10^5 but may TLE for larger inputs. For static point sets with offline rectangle queries, prefer merge sort or CDQ divide-and-conquer.
+</Note>
+
+---
+
+## Link-Cut Tree Overview
+
+A Link-Cut Tree (LCT) is a data structure for dynamic forests that supports:
+- `link(u, v)` — add edge (u, v)
+- `cut(u, v)` — remove edge (u, v)
+- `query(u, v)` — path aggregate between u and v
+
+All operations run in O(log n) amortized via **access** (splay) operations on preferred paths. The tree is represented as a collection of Splay trees, each covering a preferred path.
+
+```cpp
+// LCT node structure
+struct LCTNode {
+    int ch[2], fa;
+    long long val, sum;
+    bool rev; // lazy reverse flag
+};
+
+// Key operations: access, makeroot, link, cut, split
+// Full implementation is ~80-100 lines; typically memorized for NOI
+```
+
+<Tip>
+LCT is one of the most implementation-heavy structures in OI. Focus on understanding the `access` operation first — everything else follows from it. Practice on P3690 (LCT template) before using it in a real contest.
+</Tip>
+
+---
+
+## Practice Problems
+
+| Structure | Problem |
+|---|---|
+| DSU | P3367 (template), P1525, P2024 |
+| Sparse Table | P3865 (ST template), P1816 |
+| Persistent segment tree | P3919 (persistent array), P3834 (range k-th) |
+| K-D Tree | P4148, P2479 |
+| Link-Cut Tree | P3690 (LCT template), P2147 |

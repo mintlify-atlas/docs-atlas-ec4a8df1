@@ -1,0 +1,385 @@
+---
+title: "C++ Competitive Programming Templates and Fast I/O Code"
+description: "Ready-to-use C++ OI templates: fast I/O, modular arithmetic, DSU, BIT, lazy segment tree, Sparse Table, PBDS ordered set, Dijkstra, and HLD code snippets."
+---
+
+Having well-tested, immediately deployable templates is one of the biggest practical advantages in competitive programming. A correct segment tree or DSU that you can type from memory — or paste in 30 seconds — frees mental bandwidth for the actual problem-solving. All templates below are taken directly from real OI contest code; they have been used in NOIP, CSP, and NOI preparation.
+
+## Program Framework
+
+<Tabs>
+  <TabItem value="Basic">
+
+The minimal skeleton for any problem:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+
+    return 0;
+}
+```
+
+  </TabItem>
+  <TabItem value="Contest-Ready">
+
+Full boilerplate with common typedefs, constants, and fast IO:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+using ll  = long long;
+using pii = pair<int, int>;
+
+const int  inf = 0x3f3f3f3f;
+const ll   INF = 0x3f3f3f3f3f3f3f3fLL;
+const int  mod = 998244353;
+const int  N   = 100005;
+
+int main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    return 0;
+}
+```
+
+  </TabItem>
+  <TabItem value="File IO">
+
+For NOIP/CSP/NOI offline contests that require file-based I/O:
+
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    freopen("problem.in",  "r", stdin);
+    freopen("problem.out", "w", stdout);
+
+    return 0;
+}
+```
+
+  </TabItem>
+</Tabs>
+
+<Note>
+`ios::sync_with_stdio(false)` and `cin.tie(nullptr)` together make `cin`/`cout` nearly as fast as `scanf`/`printf`. Use `'\n'` instead of `endl` to avoid flushing the buffer on every output line.
+</Note>
+
+## Fast I/O
+
+<Tabs>
+  <TabItem value="getchar reader">
+
+A hand-rolled integer reader using `getchar`. Roughly 3–5× faster than `scanf` for large inputs:
+
+```cpp
+int read()
+{
+    int x = 0, f = 1;
+    char c = getchar();
+    while (c < '0' || c > '9') { if (c == '-') f = -1; c = getchar(); }
+    while (c >= '0' && c <= '9') { x = x * 10 + c - 48; c = getchar(); }
+    return x * f;
+}
+void write(int x)
+{
+    if (x < 0) { putchar('-'); x = -x; }
+    if (x > 9) write(x / 10);
+    putchar(x % 10 + 48);
+}
+```
+
+  </TabItem>
+  <TabItem value="Buffered IO namespace">
+
+Maximum-speed buffered I/O using `fread`/`fwrite`. Use for problems with n ≥ 10^6 and tight time limits:
+
+```cpp
+namespace IO
+{
+    #define MAX_SIZE (1 << 16)
+    char buf[MAX_SIZE], pbuf[MAX_SIZE], *p1, *p2, *pp = pbuf;
+    #define gc() (p1 == p2 && \
+        (p2 = (p1 = buf) + fread(buf, 1, MAX_SIZE, stdin), p1 == p2) \
+        ? EOF : *p1++)
+    #define pc(x) (pp == pbuf + MAX_SIZE && \
+        (fwrite(pbuf, 1, MAX_SIZE, stdout), pp = pbuf), *pp++ = (x))
+    #define flush() (fwrite(pbuf, 1, pp - pbuf, stdout), pp = pbuf)
+
+    template<typename T>
+    inline T read(T &x) {
+        char ch; bool f = true; x = 0;
+        while (ch = gc(), ~ch && !isdigit(ch)) f &= (bool)(ch ^ '-');
+        while (isdigit(ch)) { x = (x << 1) + (x << 3) + (ch ^ 48); ch = gc(); }
+        return x = f ? x : -x;
+    }
+    template<typename T>
+    inline void print(T x) {
+        static short stk[20]; int top = 0;
+        if (x < 0) { x = -x; pc('-'); }
+        do stk[top++] = x % 10, x /= 10; while (x);
+        while (top) pc(stk[--top] ^ 48);
+    }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+## Common Utility Functions
+
+### Greatest Common Divisor
+
+```cpp
+// C++17: use std::gcd(a, b) from <numeric>
+// Manual implementation:
+long long gcd(long long a, long long b) {
+    return b ? gcd(b, a % b) : a;
+}
+long long lcm(long long a, long long b) {
+    return a / gcd(a, b) * b;
+}
+```
+
+### Fast Power (Modular Exponentiation)
+
+```cpp
+using ll = long long;
+const int mod = 998244353;
+
+ll power(ll x, ll y, ll m = mod) {
+    x %= m;
+    ll res = 1;
+    while (y) {
+        if (y & 1) res = res * x % m;
+        x = x * x % m;
+        y >>= 1;
+    }
+    return res;
+}
+```
+
+### Modular Inverse
+
+```cpp
+// Modular inverse of x under prime mod (Fermat's little theorem)
+ll inv(ll x) { return power(x, mod - 2); }
+
+// Linear sieve for inverse of 1..N (faster for precomputation)
+ll inv_arr[N];
+void precompute_inv(int n) {
+    inv_arr[1] = 1;
+    for (int i = 2; i <= n; i++)
+        inv_arr[i] = (mod - mod / i) * inv_arr[mod % i] % mod;
+}
+```
+
+### Combinatorics (nCr mod p)
+
+```cpp
+const int N = 100005;
+ll fac[N], jv[N]; // factorial and inverse factorial
+
+void init_comb(int n) {
+    fac[0] = jv[0] = 1;
+    for (int i = 1; i <= n; i++) {
+        fac[i] = fac[i-1] * i % mod;
+        jv[i]  = jv[i-1] * inv(i) % mod;
+    }
+}
+
+ll C(ll n, ll m) {
+    if (n < m || m < 0) return 0;
+    return fac[n] * jv[n-m] % mod * jv[m] % mod;
+}
+
+ll A(ll n, ll m) { // permutation P(n,m)
+    if (n < m || m < 0) return 0;
+    return fac[n] * jv[n-m] % mod;
+}
+```
+
+## Data Structure Templates
+
+### Disjoint Set Union (DSU)
+
+```cpp
+struct DSU {
+    int fa[N];
+    void init(int n) {
+        for (int i = 1; i <= n; i++) fa[i] = i;
+    }
+    int find(int u) {
+        return u == fa[u] ? u : fa[u] = find(fa[u]);
+    }
+    void merge(int u, int v) { fa[find(u)] = find(v); }
+    bool query(int u, int v) { return find(u) == find(v); }
+} dsu;
+```
+
+### Fenwick Tree (BIT)
+
+```cpp
+struct BIT {
+    int c[N];
+    void add(int u, int v) {
+        while (u < N) { c[u] += v; u += u & -u; }
+    }
+    int sum(int u) {
+        int res = 0;
+        while (u) { res += c[u]; u -= u & -u; }
+        return res;
+    }
+    int query(int l, int r) { return sum(r) - sum(l - 1); }
+} bit;
+```
+
+### Segment Tree with Lazy Propagation
+
+Full range-add, range-sum segment tree — the canonical OI template:
+
+```cpp
+using ll = long long;
+#define ls (u<<1)
+#define rs (u<<1|1)
+#define mid (l+r>>1)
+
+struct SEG {
+    ll a[N], val[N<<2], tag[N<<2];
+
+    void gx(int u, ll v, int len) { val[u] += v * len; tag[u] += v; }
+    void push_up(int u) { val[u] = val[ls] + val[rs]; }
+    void push_down(int u, int l, int r) {
+        gx(ls, tag[u], mid - l + 1);
+        gx(rs, tag[u], r - mid);
+        tag[u] = 0;
+    }
+    void build(int u, int l, int r) {
+        if (l == r) { val[u] = a[l]; return; }
+        build(ls, l, mid); build(rs, mid+1, r);
+        push_up(u);
+    }
+    void update(int u, int l, int r, int x, int y, ll v) {
+        if (x <= l && r <= y) { gx(u, v, r - l + 1); return; }
+        push_down(u, l, r);
+        if (x <= mid) update(ls, l, mid, x, y, v);
+        if (y >  mid) update(rs, mid+1, r, x, y, v);
+        push_up(u);
+    }
+    ll query(int u, int l, int r, int x, int y) {
+        if (x <= l && r <= y) return val[u];
+        push_down(u, l, r);
+        ll res = 0;
+        if (x <= mid) res += query(ls, l, mid, x, y);
+        if (y >  mid) res += query(rs, mid+1, r, x, y);
+        return res;
+    }
+} seg;
+```
+
+### Sparse Table (O(1) RMQ)
+
+```cpp
+struct ST {
+    int a[30][N];
+    void init(int n, int raw[]) {
+        for (int j = 1; j <= n; j++) a[0][j] = raw[j];
+        for (int i = 1; i <= __lg(n); i++)
+            for (int j = 1; j <= n - (1<<i) + 1; j++)
+                a[i][j] = max(a[i-1][j], a[i-1][j + (1<<(i-1))]);
+    }
+    int query(int l, int r) {
+        int k = __lg(r - l + 1);
+        return max(a[k][l], a[k][r - (1<<k) + 1]);
+    }
+} st;
+```
+
+### GNU PBDS Ordered Set
+
+```cpp
+#include <bits/extc++.h>
+using namespace __gnu_pbds;
+
+// Ordered set with order_of_key and find_by_order
+tree<pair<int,int>, null_type, less<pair<int,int>>,
+     rb_tree_tag, tree_order_statistics_node_update> T;
+
+// Usage:
+// T.insert({val, unique_id});
+// T.order_of_key({val, INT_MIN})  -> rank (0-indexed)
+// *T.find_by_order(k)             -> k-th element (0-indexed)
+```
+
+## Graph Algorithm Snippets
+
+### Dijkstra (Priority Queue)
+
+```cpp
+vector<pair<int,int>> G[N]; // G[u] = {v, w}
+int dist[N];
+
+void dijkstra(int src, int n) {
+    fill(dist+1, dist+n+1, INT_MAX);
+    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<>> pq;
+    dist[src] = 0;
+    pq.push({0, src});
+    while (!pq.empty()) {
+        auto [d, u] = pq.top(); pq.pop();
+        if (d > dist[u]) continue;
+        for (auto [v, w] : G[u]) {
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                pq.push({dist[v], v});
+            }
+        }
+    }
+}
+```
+
+### Heavy-Light Decomposition (HLD)
+
+```cpp
+vector<int> G[N];
+int fa[N], son[N], siz[N], dep[N];
+int top_arr[N], dfn[N], rnk[N], cnt_hld;
+
+void dfs1(int u) {
+    siz[u] = 1; dep[u] = dep[fa[u]] + 1;
+    for (int v : G[u]) {
+        if (v == fa[u]) continue;
+        fa[v] = u; dfs1(v);
+        siz[u] += siz[v];
+        if (siz[v] > siz[son[u]]) son[u] = v;
+    }
+}
+void dfs2(int u, int t) {
+    top_arr[u] = t; dfn[u] = ++cnt_hld; rnk[cnt_hld] = u;
+    if (son[u]) dfs2(son[u], t);
+    for (int v : G[u]) {
+        if (v == fa[u] || v == son[u]) continue;
+        dfs2(v, v);
+    }
+}
+// LCA via HLD
+int lca(int u, int v) {
+    while (top_arr[u] != top_arr[v]) {
+        if (dep[top_arr[u]] < dep[top_arr[v]]) swap(u, v);
+        u = fa[top_arr[u]];
+    }
+    return dep[u] < dep[v] ? u : v;
+}
+```
+
+<Tip>
+Keep a local file with all your tested templates. During a contest, copy the needed ones and adjust array sizes to match the problem constraints. Always check that N is large enough — off-by-one on array size is a common source of RE.
+</Tip>

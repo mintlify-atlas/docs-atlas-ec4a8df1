@@ -1,0 +1,159 @@
+---
+title: "Time & Space Complexity in Competitive Programming"
+description: "Master Big-O notation and complexity analysis to predict whether your solution fits within contest time and memory limits before you submit."
+---
+
+Understanding how an algorithm's runtime and memory usage scale with input size is the most fundamental skill in competitive programming. Before writing a single line of code, experienced contestants estimate complexity to rule out approaches that are too slow — saving time and avoiding wrong-direction implementations.
+
+## What is complexity?
+
+**Time complexity** describes how the number of operations an algorithm performs grows as the input size $n$ increases. **Space complexity** describes how its memory usage grows. Both are expressed using asymptotic notation, which captures the growth rate while ignoring constant factors and lower-order terms.
+
+For example, an algorithm that does exactly $3n^2 + 7n + 12$ operations has time complexity $O(n^2)$: the $n^2$ term dominates for large $n$, and constants are irrelevant at scale.
+
+## Asymptotic notation
+
+Five symbols capture different bounds on a function's growth:
+
+| Symbol | Meaning | Intuition |
+|--------|---------|-----------|
+| $O(g)$ | Upper bound | "at most this fast" |
+| $\Omega(g)$ | Lower bound | "at least this fast" |
+| $\Theta(g)$ | Tight bound | "exactly this fast" |
+| $o(g)$ | Strict upper bound | "strictly slower than" |
+| $\omega(g)$ | Strict lower bound | "strictly faster than" |
+
+In competitive programming, $O$ notation is used almost exclusively because you care about worst-case guarantees.
+
+<Note>
+All logarithms are equivalent up to a constant factor: $\log_a n = \Theta(\log_b n)$ for any fixed bases $a, b > 1$. This is why contest analysis always writes $O(\log n)$ without specifying a base.
+</Note>
+
+## Common complexity classes
+
+The table below shows typical complexities and the maximum $n$ that fits within roughly **1–2 seconds** at ~$10^8$ simple operations per second.
+
+| Complexity | Name | Max $n$ (≈1–2 s) | Example |
+|---|---|---|---|
+| $O(1)$ | Constant | Any | Hash table lookup |
+| $O(\log n)$ | Logarithmic | $10^{18}$ | Binary search |
+| $O(\sqrt{n})$ | Square root | $10^{13}$ | Primality test |
+| $O(n)$ | Linear | $10^8$ | Single array scan |
+| $O(n \log n)$ | Linearithmic | $10^6$–$10^7$ | `std::sort`, merge sort |
+| $O(n \sqrt{n})$ | | $10^5$ | Mo's algorithm |
+| $O(n^2)$ | Quadratic | $5 \times 10^3$ | Bubble sort, naive DP |
+| $O(n^3)$ | Cubic | $300$–$500$ | Floyd-Warshall |
+| $O(2^n)$ | Exponential | $20$–$25$ | Bitmask DP, brute force subsets |
+| $O(n!)$ | Factorial | $10$–$12$ | Permutation enumeration |
+
+<Warning>
+The $10^8$ operations-per-second rule of thumb assumes simple operations (comparisons, additions). Operations with heavy cache misses, large constants, or branchy code can be 5–10× slower. Always leave a safety margin.
+</Warning>
+
+## Useful properties
+
+When combining complexities, these rules apply:
+
+- **Sum rule**: Sequential phases add — $O(f) + O(g) = O(\max(f, g))$
+- **Product rule**: Nested loops multiply — $O(f) \times O(g) = O(f \cdot g)$
+- **Log base**: $\log_a n = O(\log_2 n)$ for any constant $a > 1$
+
+## Estimating complexity from loops
+
+The most common way to compute complexity is to count how many times the innermost work executes.
+
+```cpp estimate-loops.cpp
+// O(n^2): nested loops, each 1..n
+for (int i = 1; i <= n; i++)
+    for (int j = 1; j <= n; j++)
+        /* O(1) work */;
+
+// O(n log n): outer O(n), inner decrements by factor
+for (int i = 1; i <= n; i++)
+    for (int j = 1; j <= n; j *= 2)
+        /* O(1) work */;
+
+// O(n log n): harmonic series — sum of n/i for i=1..n
+for (int i = 1; i <= n; i++)
+    for (int j = i; j <= n; j += i)
+        /* O(1) work */;
+```
+
+<Tip>
+The harmonic series $\sum_{i=1}^{n} \lfloor n/i \rfloor = \Theta(n \log n)$ appears frequently in number theory problems (e.g., sieve of Eratosthenes, divisor enumeration). Recognizing it immediately gives you the complexity.
+</Tip>
+
+## The Master Theorem
+
+Recursive algorithms often have recurrences of the form:
+
+$$T(n) = a \cdot T\!\left(\frac{n}{b}\right) + f(n)$$
+
+where $a$ subproblems of size $n/b$ are solved, plus $f(n)$ work at each level. The **Master Theorem** gives the solution:
+
+$$T(n) = \begin{cases} \Theta(n^{\log_b a}) & f(n) = O(n^{\log_b a - \varepsilon}),\ \varepsilon > 0 \\ \Theta(f(n)) & f(n) = \Omega(n^{\log_b a + \varepsilon}),\ \varepsilon \geq 0 \\ \Theta(n^{\log_b a} \log^{k+1} n) & f(n) = \Theta(n^{\log_b a} \log^k n),\ k \geq 0 \end{cases}$$
+
+### Master Theorem examples
+
+<Tabs>
+  <Tab title="Merge sort">
+    Merge sort splits in half and merges in linear time:
+
+    $$T(n) = 2T(n/2) + \Theta(n)$$
+
+    Here $a = 2$, $b = 2$, so $n^{\log_b a} = n^1 = n$. Since $f(n) = \Theta(n) = \Theta(n^{\log_b a} \log^0 n)$, the third case applies with $k = 0$:
+
+    $$T(n) = \Theta(n \log n)$$
+  </Tab>
+  <Tab title="Binary search">
+    Binary search recurses on one half with constant work:
+
+    $$T(n) = T(n/2) + \Theta(1)$$
+
+    Here $a = 1$, $b = 2$, so $n^{\log_b a} = n^0 = 1$. Since $f(n) = \Theta(1) = \Theta(n^0 \log^0 n)$, the third case applies:
+
+    $$T(n) = \Theta(\log n)$$
+  </Tab>
+  <Tab title="Naive matrix multiply">
+    Strassen's naive recurrence (for comparison):
+
+    $$T(n) = 8T(n/2) + \Theta(n^2)$$
+
+    Here $n^{\log_2 8} = n^3$ and $f(n) = O(n^{3 - 1})$, so first case:
+
+    $$T(n) = \Theta(n^3)$$
+  </Tab>
+</Tabs>
+
+## Practical decision guide
+
+Before implementing a solution, check whether the complexity fits:
+
+<Steps>
+  <Step title="Read the constraints">
+    Note the maximum value of $n$ (and any secondary parameters like $q$ for queries or $m$ for edges). These are printed in the problem statement.
+  </Step>
+  <Step title="Estimate allowed operations">
+    Multiply the time limit (usually 1–2 seconds) by $10^8$. That is your budget of simple operations.
+  </Step>
+  <Step title="Derive your algorithm's complexity">
+    Count loop iterations symbolically. Use the harmonic series, geometric series, or Master Theorem as needed.
+  </Step>
+  <Step title="Plug in the constraint">
+    Substitute the maximum $n$ into your complexity formula. If the result exceeds your budget by more than ~5×, you need a faster algorithm.
+  </Step>
+</Steps>
+
+## Related topics
+
+<CardGroup cols={2}>
+  <Card title="Sorting" href="/contest/basics/sorting">
+    See $O(n \log n)$ sorting algorithms and when to use each.
+  </Card>
+  <Card title="Binary search" href="/contest/basics/binary-search">
+    How $O(\log n)$ search works and the binary-search-on-answer technique.
+  </Card>
+  <Card title="Prefix sums" href="/contest/basics/prefix-sum">
+    Convert $O(nq)$ range queries to $O(n + q)$ with preprocessing.
+  </Card>
+</CardGroup>

@@ -1,0 +1,201 @@
+---
+title: "Markdown Syntax Reference for Documentation Writing"
+description: A complete Markdown syntax reference covering paragraphs, headings, emphasis, lists, code blocks, links, images, tables, blockquotes, and horizontal rules.
+---
+
+Markdown is a lightweight text markup language created by John Gruber in 2004. It lets you write formatted documents using only plain text with minimal symbols. Markdown files are readable as-is and can be rendered to HTML, PDF, or rich-text formats by any Markdown-aware tool.
+
+Markdown is the primary format for all content on lailai's Home. The tool of choice for offline editing is [Typora](https://typora.io), a WYSIWYG Markdown editor.
+
+<Note>
+  This guide covers syntax rules only. It does not cover formatting and typographic conventions — those are documented in the [Writing Guide](/project/guides/writing).
+</Note>
+
+## Paragraphs
+
+A **paragraph** is one or more consecutive lines of text. Paragraphs are separated by at least one blank line.
+
+```markdown
+First paragraph.
+Still the first paragraph.
+
+Second paragraph.
+```
+
+## Headings
+
+Use hash signs (`#`) to create headings. One `#` gives a level-one heading; up to six `#` signs give a level-six heading.
+
+```markdown
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+```
+
+<Note>
+  In lailai's documentation, level-one headings are not used in body content — the page title serves as the h1. Use headings from level 2 (`##`) downward. Do not skip heading levels.
+</Note>
+
+## Emphasis
+
+### Bold
+
+Wrap text with two asterisks (`**`) or two underscores (`__`) to make it **bold**:
+
+```markdown
+This is **bold text**.
+```
+
+### Italic
+
+Wrap text with one asterisk (`*`) or one underscore (`_`) to make it _italic_:
+
+```markdown
+This is _italic text_.
+```
+
+### Strikethrough
+
+Wrap text with two tildes (`~~`) to ~~strike through~~ it:
+
+```markdown
+This is ~~strikethrough~~ text.
+```
+
+## Lists
+
+### Unordered Lists
+
+Use a hyphen (`-`), asterisk (`*`), or plus sign (`+`) followed by a space:
+
+```markdown
+- Item one
+- Item two
+- Item three
+```
+
+### Ordered Lists
+
+Use a number followed by a period:
+
+```markdown
+1. First item
+2. Second item
+3. Third item
+```
+
+### Task Lists
+
+Use `[ ]` for an unchecked item and `[x]` for a checked item:
+
+```markdown
+- [x] Completed task
+- [ ] Pending task
+- [x] Another completed task
+```
+
+## Code
+
+### Inline Code
+
+Wrap code with a single backtick:
+
+```markdown
+Use `npm install` to install dependencies.
+```
+
+### Fenced Code Blocks
+
+Wrap code with three backticks and specify the language:
+
+````markdown
+```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
+int main()
+{
+    cout << "Hello, world!" << '\n';
+    return 0;
+}
+```
+````
+
+Common language tags: `cpp`, `python`, `js`, `ts`, `bash`, `json`, `markdown`, `text`.
+
+## Links
+
+Use `[link text](URL)` to create a hyperlink:
+
+```markdown
+[Docusaurus](https://docusaurus.io)
+```
+
+For relative links within documentation, omit the leading `./`:
+
+```markdown
+[Writing Guide](guides/writing)
+```
+
+Link text should be descriptive — describe the destination, not just "click here" or "here".
+
+## Images
+
+Use `![alt text](image URL)` to embed an image. Always provide meaningful alt text:
+
+```markdown
+![Hangzhou Highschool Map preview](https://cloud.lailai.one/f/nMdSq/hangzhou-highschool-map.png)
+```
+
+## Blockquotes
+
+Use a greater-than sign (`>`) at the start of each line:
+
+```markdown
+> First paragraph of the quote.
+>
+> Second paragraph of the quote.
+```
+
+## Tables
+
+Use pipe characters (`|`) to separate columns. The second row defines alignment with colons (`:`):
+
+```markdown
+| Left-aligned | Center-aligned | Right-aligned |
+| :----------- | :------------: | ------------: |
+| Cell 1       |    Cell 2      |        Cell 3 |
+| Cell 4       |    Cell 5      |        Cell 6 |
+```
+
+- `:---` — left alignment
+- `:---:` — center alignment
+- `---:` — right alignment
+
+## Horizontal Rules
+
+Use three or more hyphens (`---`) on a line by themselves:
+
+```markdown
+Section one
+
+---
+
+Section two
+```
+
+## Tips and Best Practices
+
+- Use ATX-style headings (`#`) rather than setext-style (underline with `=` or `-`).
+- Leave a blank line before and after headings, code blocks, lists, and blockquotes.
+- Use hyphens (`-`) for unordered list items, not asterisks or plus signs — this is consistent with lailai's writing guide.
+- Always specify a language tag on fenced code blocks. Use `text` for plain text output.
+- Keep line lengths reasonable for readability in a plain-text editor, even if the renderer will reflow the text.

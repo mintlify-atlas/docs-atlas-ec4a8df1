@@ -1,24 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Lailai's Home",
+  "projectType": "frontend",
+  "projectName": "Lailai's Home",
+  "projectDescription": "A personal website built with Docusaurus for sharing competitive programming notes, academic study materials, and personal project documentation.",
   "theme": "willow",
-  "colors": {
-    "primary": "#fac40e",
-    "light": "#2f9f7f",
-    "dark": "#f14636"
-  },
-  "favicon": "https://media.brand.dev/74fe3bfa-0999-4ea6-b640-e1b05dbfa036.svg",
-  "navbar": {
-    "primary": {
-      "type": "github",
-      "href": "https://github.com/lailai0916/lailai0916.github.io"
-    }
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/lailai0916/lailai0916.github.io"
-    }
-  },
+  "primaryColor": "#fac40e",
+  "lightColor": "#2f9f7f",
+  "darkColor": "#f14636",
   "navigation": {
     "tabs": [
       {
@@ -126,5 +113,27 @@
         ]
       }
     ]
-  }
+  },
+  "keyFeatures": [
+    "Competitive programming (OI) algorithm reference with C++ code templates",
+    "High school and university-level math study notes",
+    "English language learning notes (grammar, vocabulary, pronunciation)",
+    "Personal project showcase including terminal tools, Desmos projects, and AI tools",
+    "Docusaurus-based static site with KaTeX math rendering and Mermaid diagrams",
+    "Multi-language support (English and Simplified Chinese)",
+    "Full-text search via Algolia DocSearch",
+    "Light/dark mode with responsive design",
+    "Live code blocks and interactive React components",
+    "Blog with RSS/Atom/JSON feed support"
+  ],
+  "publicApiSurface": [
+    "docs/contest — Competitive programming algorithm notes",
+    "docs/note — Academic study notes (math, English, recommendations)",
+    "docs/project — Personal projects and developer guides",
+    "blog — Personal blog posts",
+    "src/components — Custom React components (GitHub, ImageWindow, etc.)",
+    "src/data — Site data (projects, skills, friends, quotes)",
+    "docusaurus.config.ts — Site configuration",
+    "sidebars.ts — Documentation sidebar configuration"
+  ]
 }

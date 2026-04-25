@@ -1,0 +1,84 @@
+---
+title: "AI-Assisted Tools — Hydrocarbon Namer and Sun Path Atlas"
+description: "Two web tools built with AI assistance: Hydrocarbon Namer for IUPAC organic compound naming, and Sun Path Atlas for solar position visualization."
+---
+
+These projects combine subject-matter research with AI-assisted development. Each tool addresses a specific real-world problem — one from chemistry, one from geography — and is built as a standalone interactive web application.
+
+<Warning>
+  Both projects were implemented entirely by GPT-5.3-Codex (Extra High), with the exception of the `README.md` files. They represent an experiment in AI-driven project development.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Hydrocarbon Namer" icon="flask-conical" href="#hydrocarbon-namer">
+    An interactive tool for naming organic hydrocarbon compounds according to IUPAC nomenclature rules — draw a structure and get the systematic name.
+  </Card>
+  <Card title="Sun Path Atlas" icon="sun" href="#sun-path-atlas">
+    A solar position visualization tool for architecture, photography, and outdoor planning — shows the sun's path across the sky for any location and date.
+  </Card>
+</CardGroup>
+
+---
+
+## Hydrocarbon Namer
+
+Hydrocarbon Namer is an interactive chemistry tool that applies IUPAC nomenclature rules to name organic hydrocarbon compounds. Users can input or draw a molecular structure, and the tool returns the systematic IUPAC name.
+
+The project was completed on 2026-03-24 as an exploration of organic chemistry naming conventions.
+
+### What It Does
+
+The tool handles the naming rules for:
+- **Alkanes** — unbranched and branched chain structures with correct locant numbering
+- **Alkenes and alkynes** — double and triple bond position identification
+- **Cyclic hydrocarbons** — ring structures and their substituents
+
+The naming algorithm follows the systematic procedure: identify the longest carbon chain (parent chain), number carbons to give substituents the lowest locants, name each substituent, and assemble the complete IUPAC name.
+
+### Repository
+
+The source code is published at `lailai0916/hydrocarbon-namer` on GitHub.
+
+### Live Demo
+
+The tool is accessible at [lailai.one/hydrocarbon-namer](https://lailai.one/hydrocarbon-namer).
+
+---
+
+## Sun Path Atlas
+
+Sun Path Atlas is a geographic visualization tool that shows the path of the sun across the sky for a given location on Earth and a given date. It targets architects, photographers, and outdoor planners who need to understand solar angles and daylight availability.
+
+The project was originally completed as a high school geography assignment on 2026-02-04.
+
+### What It Shows
+
+- **Solar altitude and azimuth** at any time of day for the selected date and location
+- **Daily sun path arc** drawn on a sky dome or horizon diagram
+- **Sunrise and sunset times** with twilight periods
+- **Seasonal comparison** — how the path changes between solstices and equinoxes
+
+Understanding the sun's path is useful for:
+- **Architecture** — optimizing window placement and shading for energy efficiency
+- **Photography** — planning the golden hour or blue hour for a specific location
+- **Outdoor events** — predicting where the sun will be at a given time
+
+### Repository
+
+The source code is published at `lailai0916/sun-path-atlas` on GitHub.
+
+### Live Demo
+
+The tool is accessible at [lailai.one/sun-path-atlas](https://lailai.one/sun-path-atlas).
+
+---
+
+## Notes on AI-Driven Development
+
+Both projects follow an interesting development pattern: the problem domain was researched and scoped by lailai, the implementation was delegated to a large language model, and the result was reviewed and deployed. This approach allowed domain-specific tools to be built quickly without requiring deep expertise in web frameworks.
+
+The key constraint — that only the `README.md` was written by hand — reflects a deliberate experiment in understanding where AI-assisted development works well and where human judgment remains necessary.
+
+<Tip>
+  If you want to explore the implementation details of either project, the source repositories are public on GitHub.
+</Tip>
